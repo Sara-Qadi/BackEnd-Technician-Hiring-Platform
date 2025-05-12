@@ -1,0 +1,31 @@
+# Environment
+.env
+.env.*
+
+# Composer
+/vendor
+
+# Node
+/node_modules
+
+# Logs & cache
+/storage/logs
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/debugbar
+
+# PHPUnit
+.phpunit.result.cache
+
+# IDEs
+.vscode
+.idea
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Homestead (اختياري لو مش تستخدمه)
+Homestead.yaml
+Homestead.json
