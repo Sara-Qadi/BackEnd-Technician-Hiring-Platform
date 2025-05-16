@@ -6,26 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->increments('UserId');
-            $table->string('UserName');
-            $table->string('Email', 100)->unique('email');
-            $table->string('Phone', 15);
-            $table->string('Password', 191);
-            $table->string('Country', 50);
+            $table->increments('user_id');
+            $table->string('user_name', 50);
+            $table->string('email', 191)->unique();
+            $table->string('password', 191);
+            $table->string('phone', 15);
+            $table->string('country', 50);
+            $table->timestamps(); // to add 2 columns: created_at, updated_at
+            $table->unsignedInteger('role_id');
+           
+            $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
 
-            $table->unique(['Email']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::dropIfExists('users');
