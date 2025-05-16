@@ -6,23 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
-        Schema::create('proposal', function (Blueprint $table) {
-            $table->integer('ProposalId', true);
-            $table->integer('Price')->default(0);
-            $table->text('DescriptionProposal')->nullable();
+        Schema::create('proposals', function (Blueprint $table) {
+            $table->increments('proposal_id'); // primary key, auto-increment
+            $table->integer('price')->default(0);
+            $table->text('description_proposal')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
-        Schema::dropIfExists('proposal');
+        Schema::dropIfExists('proposals');
     }
 };
