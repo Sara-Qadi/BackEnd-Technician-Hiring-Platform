@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('location');
             $table->text('description')->nullable();
             $table->timestamps();
-
+            $table->unsignedInteger('user_id');
+        
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
