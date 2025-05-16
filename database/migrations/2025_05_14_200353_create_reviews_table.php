@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('proposal', function (Blueprint $table) {
-            $table->integer('ProposalId', true);
-            $table->integer('Price')->default(0);
-            $table->text('DescriptionProposal')->nullable();
+        Schema::create('table_review', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -23,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('proposal');
+        Schema::dropIfExists('table_review');
     }
 };
