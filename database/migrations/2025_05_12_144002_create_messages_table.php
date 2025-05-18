@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('messages', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('receiver_id');
             $table->unsignedBigInteger('sender_id');
             $table->text('message_content');
 
-            $table->primary(['receiver_id', 'sender_id']);
-
             $table->foreign('receiver_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->foreign('sender_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
