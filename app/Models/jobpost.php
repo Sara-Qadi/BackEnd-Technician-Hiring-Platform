@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobPost extends Model
 {
-    protected $table = 'jobpost';
+    protected $table = 'jobposts';
     protected $primaryKey = 'jobpost_id';
 
     protected $fillable = [
@@ -23,4 +23,22 @@ class JobPost extends Model
     public function user(){
         return $this-> belongsTo(User::class, 'user_id');
     }
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'jobpost_id');
+    }
+    //lian
+    public function luser()
+    {
+    return $this->belongsTo(LUser::class, 'user_id', 'luser_id');
+    }
+
+    // omar
+    public function submission(){
+        return $this-> hasOne(Submission::class, 'submission_id');
+    }
+    //--------------------------------------------------------
 }
+
+
+

@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('appliesfor', function (Blueprint $table) {
-            $table->integer('ProposalId');
-            $table->integer('UserId');
-            $table->integer('JobpostId');
-            $table->integer('Rating')->nullable()->default(0);
-            $table->text('ReviewComment')->nullable();
-
-            $table->primary(['JobpostId', 'UserId']);
-            $table->unique(['ProposalId', 'UserId'], 'proposalid');
-            $table->unique(['ProposalId', 'JobpostId'], 'proposalid_2');
+        Schema::create('submissions', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('tech_id');
+            $table->unsignedInteger('jobpost_id');
+            $table->boolean('status_agreed')->default(false);
+            $table->timestamps();
         });
     }
 
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('appliesfor');
+        Schema::dropIfExists('submissions');
     }
 };

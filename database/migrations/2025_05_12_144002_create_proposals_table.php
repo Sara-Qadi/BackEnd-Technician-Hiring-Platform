@@ -10,9 +10,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('proposals', function (Blueprint $table) {
-            $table->increments('proposal_id'); // primary key, auto-increment
-            $table->integer('price')->default(0);
+            $table->id(); // primary key, auto-increment
+            $table->decimal('price', 10, 2)->default(0);
             $table->text('description_proposal')->nullable();
+            $table->unsignedInteger('submission_id')->nullable();
+            $table->foreign('submission_id')->references('id')->on('submissions')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

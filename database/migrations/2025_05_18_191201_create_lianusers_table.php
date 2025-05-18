@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_review', function (Blueprint $table) {
-            $table->id();
+        Schema::create('lianusers', function (Blueprint $table) {
+            $table->id('luser_id'); // استخدمنا user_id بدل id لتوافق الكود الموجود عندك
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_review');
+        Schema::dropIfExists('lianusers');
     }
 };
