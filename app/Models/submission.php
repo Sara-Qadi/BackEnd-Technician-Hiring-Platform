@@ -1,34 +1,39 @@
 <?php
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AppliesFor extends Model
+class Submission extends Model
 {
-    protected $table = 'appliesfor';
-    public $timestamps = false;
-    public $incrementing = false; 
+    use HasFactory;
+    protected $primaryKey = 'id';
 
     protected $fillable = [
-        'ProposalId',
-        'UserId',
-        'JobPostId',
-        'Rating',
-        'ReviewComment',
+        'tech_id',
+        'jobpost_id',
+        'status_agreed',
     ];
 
-    public function user()
+
+    public function proposals()
     {
-        return $this->belongsTo(User::class, 'UserId');
+        return $this->hasMany(Proposal::class , 'submission_id');
     }
 
-    public function jobPost()
+    public function technician() // users id
     {
-        return $this->belongsTo(JobPost::class, 'JobPostId');
+        return $this->belongsTo(User::class, 'tech_id');
     }
 
-    public function proposal()
+    public function jobpost()
     {
-        return $this->belongsTo(Proposal::class, 'ProposalId');
+        return $this->belongsTo(JobPost::class, 'jobpost_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class , 'submission_id'); // الي عمل review بزبطها
     }
 }

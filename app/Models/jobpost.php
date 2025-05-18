@@ -24,6 +24,11 @@ class JobPost extends Model
         return $this-> belongsTo(User::class, 'user_id');
     }
 
+    // omar
+    public function submission(){
+        return $this-> hasOne(Submission::class, 'submission_id');
+    }
+    //--------------------------------------------------------
 }
 
 
