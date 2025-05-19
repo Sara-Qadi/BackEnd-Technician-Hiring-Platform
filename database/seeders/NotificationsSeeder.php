@@ -5,20 +5,23 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Notification;
-
+use Faker\Factory as Faker;
 class NotificationsSeeder extends Seeder
 {
     public function run(): void
     {
+          $faker = Faker::create();
 
-       $user = User::create([
-    'user_name' => 'Test User',
-    'email' => 'testuser@example.com',
-    'password' => bcrypt('password'),
-    'phone' => '1234567890',
-    'country' => 'TestCountry',
-    'role_id' => 1,
-]);
+     for ($i = 1; $i <= 10; $i++) {
+            $user = User::create([
+                'user_name' => $faker->name,
+                'email' => $faker->unique()->safeEmail,
+                'password' => bcrypt('password'),
+                'phone' => $faker->phoneNumber,
+                'country' => $faker->country,
+                 'role_id' => rand(1, 3),
+            ]);
+}
 
 
         Notification::create([
