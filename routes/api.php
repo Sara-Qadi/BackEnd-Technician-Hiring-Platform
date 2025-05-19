@@ -1,10 +1,19 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JobpostController;
 use App\Http\Controllers\SubmissionController;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+
+
+
 
 // Notification routes
 Route::get('/notifications/{userId}', [NotificationsController::class, 'index']);
