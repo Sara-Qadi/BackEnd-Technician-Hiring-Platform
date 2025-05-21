@@ -6,6 +6,7 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JobpostController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\UserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -36,3 +37,17 @@ Route::post('/jobpost/update/{id}', [JobpostController::class, 'update']);
 // Submission routes
 Route::post('/submission/accept', [SubmissionController::class, 'accept']);
 Route::post('/submission/reject', [SubmissionController::class, 'reject']);
+
+
+// User routes
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{id}', [UserController::class, 'show'])->where('id', '[0-9]+');
+Route::post('/users', [UserController::class, 'store']);
+Route::put('/users/{id}', [UserController::class, 'update'])->where('id', '[0-9]+');
+Route::delete('/users/{id}', [UserController::class, 'destroy'])->where('id', '[0-9]+');
+Route::get('/users/technicians', [UserController::class, 'getTechnicians']);
+Route::get('/users/owners', [UserController::class, 'getJobOwners']);
+Route::get('/users/admins', [UserController::class, 'getAdmins']);
+
+
+
