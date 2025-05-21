@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Submission; 
+use App\Models\Message; 
+
 
 class User extends Authenticatable
 {
@@ -19,7 +22,10 @@ class User extends Authenticatable
         'password',
         'country',
         'role_id',
+        'is_approved',
     ];
+
+  protected $hidden = ['password'];
 
 
   public function role(){
@@ -42,4 +48,22 @@ class User extends Authenticatable
     {
     return $this->hasOne(Profile::class, 'user_id');
     }
+
+    public function submissions()
+    {
+    return $this->hasMany(Submission::class, 'tech_id');
+    }
+
+    public function sentMessages()
+    {
+    return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+    return $this->hasMany(Message::class, 'receiver_id');
+    }
+
 }
+
+
