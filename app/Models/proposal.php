@@ -8,17 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Proposal extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'id';
+
+    protected $table = 'proposals';
 
     protected $fillable = [
         'price',
+        'status_agreed',
         'description_proposal',
-        'submission_id',
+        'tech_id',
+        'jobpost_id',
     ];
 
-
-    public function submission()
+    public function technician()
     {
-        return $this->belongsTo(Submission::class , 'submission_id');
+        return $this->belongsTo(User::class, 'tech_id');
+    }
+
+    public function jobpost()
+    {
+        return $this->belongsTo(Jobpost::class, 'jobpost_id');
     }
 }
