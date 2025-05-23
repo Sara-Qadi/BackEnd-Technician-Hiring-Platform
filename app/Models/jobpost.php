@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class JobPost extends Model
 {
-    protected $table = 'jobpost';
+    use HasFactory;
+    protected $table = 'jobposts';
     protected $primaryKey = 'jobpost_id';
 
     protected $fillable = [
@@ -19,6 +21,7 @@ class JobPost extends Model
         'attachments',
         'location',
         'description',
+        'user_id',
     ];
     public function user(){
         return $this-> belongsTo(User::class, 'user_id');
