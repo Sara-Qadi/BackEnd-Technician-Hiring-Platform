@@ -12,15 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appliesfor', function (Blueprint $table) {
-            $table->integer('ProposalId');
+            $table->integer('proposal_id');
             $table->integer('UserId');
             $table->integer('JobpostId');
-            $table->integer('Rating')->nullable()->default(0);
-            $table->text('ReviewComment')->nullable();
+    
 
             $table->primary(['JobpostId', 'UserId']);
-            $table->unique(['ProposalId', 'UserId'], 'proposalid');
-            $table->unique(['ProposalId', 'JobpostId'], 'proposalid_2');
+            $table->unique(['proposal_id', 'UserId'], 'proposal_id');
+            $table->unique(['proposal_id', 'JobpostId'], 'proposalid_2');
         });
     }
 

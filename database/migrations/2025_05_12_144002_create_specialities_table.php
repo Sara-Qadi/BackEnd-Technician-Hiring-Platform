@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('specialities', function (Blueprint $table) {
-            $table->integer('specialitiesId');
+            $table->integer('specialities_id');
             $table->integer('ProfileId')->index('profileid');
 
-            $table->primary(['specialitiesId', 'ProfileId']);
+            $table->primary(['specialities_id', 'ProfileId']);
         });
     }
 

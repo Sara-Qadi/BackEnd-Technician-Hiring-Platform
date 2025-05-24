@@ -10,12 +10,12 @@ return new class extends Migration
   public function up(): void{Schema::create('report', function (Blueprint $table) {
     $table->increments('ReportId');
     $table->unsignedBigInteger('UserId');
-    $table->unsignedBigInteger('JobPostId');
+    $table->unsignedBigInteger('jobpost_id');
     $table->text('reason');
     $table->string('ReportType')->nullable();
 
         $table->foreign('UserId')->references('UserId')->on('users')->onDelete('cascade');
-            $table->foreign('JobPostId')->references('JobPostId')->on('jobpost')->onDelete('cascade');
+            $table->foreign('jobpost_id')->references('jobpost_id')->on('jobpost')->onDelete('cascade');
         });
     }
 
