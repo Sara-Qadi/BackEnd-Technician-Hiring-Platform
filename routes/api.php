@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JobpostController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -27,17 +29,24 @@ Route::put('/profiles/{user_id}', [ProfileController::class, 'update']);
 Route::post('/profiles', [ProfileController::class, 'store']);
 
 // Jobpost routes
-Route::get('/jobpost/all', [JobpostController::class, 'all']);
-Route::get('/jobpost/count', [JobpostController::class, 'count']);
+Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
+Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
 Route::get('/jobpost/showpost/{id}', [JobpostController::class, 'showpost']);
-Route::delete('/jobpost/delete/{id}', [JobpostController::class, 'delete']);
-Route::post('/jobpost/add', [JobpostController::class, 'add']);
-Route::post('/jobpost/update/{id}', [JobpostController::class, 'update']);
+Route::delete('/jobpost/deletepost/{id}', [JobpostController::class, 'deletePost']);
+Route::post('/jobpost/addpost', [JobpostController::class, 'addPost']);
+Route::put('/jobpost/updatepost/{id}', [JobpostController::class, 'updatePost']);
+Route::post('/jobposts/download', [JobPostController::class, 'downloadfiles']);
 
 // Submission routes
-Route::post('/submission/accept', [SubmissionController::class, 'accept']);
-Route::post('/submission/reject', [SubmissionController::class, 'reject']);
+Route::post('/submission/accept', [SubmissionController::class, 'acceptProposal']);
+Route::post('/submission/reject', [SubmissionController::class, 'rejectProposal']);
 
+// Proposal routes
+Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
+Route::post('/proposal/addproposal', [ProposalController::class, 'makeNewProposals']);
+Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
+Route::put('/proposal/updateproposal/{id}', [ProposalController::class, 'updateProposal']);
+Route::delete('/proposal/deleteproposal/{id}', [ProposalController::class, 'deleteProposal']);
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);

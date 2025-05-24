@@ -18,8 +18,10 @@ class ProposalController extends Controller
             'price' => 'required|numeric|min:0',
             'status_agreed' => 'boolean',
             'description_proposal' => 'nullable|string',
-            'tech_id' => 'required|exists:users,id',
-            'jobpost_id' => 'required|exists:jobposts,id',
+            //'tech_id' => 'nullable|exists:users,id',
+            //'jobpost_id' => 'nullable|exists:jobposts,id',
+            'tech_id' => 'required|exists:users,user_id',
+            'jobpost_id' => 'required|exists:jobposts,jobpost_id',
         ]);
 
         $proposal = Proposal::create($request->all());
@@ -55,8 +57,10 @@ class ProposalController extends Controller
             'price' => 'nullable|numeric|min:0',
             'status_agreed' => 'nullable|boolean',
             'description_proposal' => 'nullable|string',
-            'tech_id' => 'nullable|exists:users,id',
-            'jobpost_id' => 'nullable|exists:jobposts,id',
+            //'tech_id' => 'nullable|exists:users,id',
+            //'jobpost_id' => 'nullable|exists:jobposts,id',
+            'tech_id' => 'required|exists:users,user_id',
+            'jobpost_id' => 'required|exists:jobposts,jobpost_id',
         ]);
 
         $proposal->update($request->all());
