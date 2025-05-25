@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Models\Review;
+
 class JobPost extends Model
 {
     use HasFactory;
@@ -23,7 +24,7 @@ class JobPost extends Model
         'attachments',
         'location',
         'description',
-        'user_id', 
+        'user_id',
     ];
 
     public function user()
@@ -31,13 +32,23 @@ class JobPost extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'jobpost_id');
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class, 'jobpost_id');
     }
-  
 
+    // omar
+    public function submission()
+    {
+        return $this->hasOne(Submission::class, 'submission_id');
+    }
 }
+
 
 
 

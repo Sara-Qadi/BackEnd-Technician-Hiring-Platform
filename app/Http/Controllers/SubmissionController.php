@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Http\Controllers;
+//use App\Models\Submission;
+use App\Models\JobPost;
+use App\Models\Proposal;
+use Illuminate\Http\Request;
+use App\Models\Notification;
+use App\Models\User;
+
+
+class SubmissionController extends Controller
+{
+
+    public function acceptProposal(Request $request){
+        $submission = Proposal::find($request->proposal_id);
+        if (!$submission) {
+            return response('proposal not found', 404);
+        }
+
+        $submission->status_agreed = 1;
+        $submission->save();
+
+        if ($submission->JobPost) {
+            $submission->JobPost->status = 'in progress';
+            $submission->JobPost->save();
+        }
+
+        // Notify the technician that their offer was accepted
+        Notification::create([
+            'user_id' => $submission->tech_id,
+            'read_status' => 'unread',
+            'type' => 'bid_response',
+            'message' => 'Your offer has been accepted by the job owner.',
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function rejectProposal(Request $request){
+        $submission = Proposal::find($request->proposal_id);
+
+        if (!$submission) {
+            return response('proposal not found', 404);
+        }
+
+        /*// تعيين status_agreed إلى 0
+        $submission->status_agreed = 0;
+        $submission->save();*/
+        $job = $submission->jobPost;
+        if ($job) {
+            $job->status = 'pending';
+            $job->save();
+        }
+        // حذف البروبوزل المرتبط
+        $submission->delete();
+
+        // Notify the technician that their offer was rejected
+        Notification::create([
+            'user_id' => $submission->tech_id,
+            'read_status' => 'unread',
+            'type' => 'bid_response',
+            'message' => 'Your offer has been rejected by the job owner.',
+        ]);
+
+        return redirect()->back();
+    }
+
+}

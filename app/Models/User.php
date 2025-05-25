@@ -5,9 +5,9 @@ use Laravel\Sanctum\HasApiTokens;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Review;
-use App\Models\Jobpost;
+use App\Models\Submission; 
+use App\Models\Message; 
+
 
 class User extends Authenticatable
 {
@@ -23,8 +23,10 @@ use HasApiTokens, HasFactory, Notifiable;
         'password',
         'country',
         'role_id',
+        'is_approved',
     ];
 
+  protected $hidden = ['password'];
 
 
   public function role(){
@@ -47,16 +49,22 @@ use HasApiTokens, HasFactory, Notifiable;
     {
     return $this->hasOne(Profile::class, 'user_id');
     }
-    
-public function reviewsGiven()
-{
-    return $this->hasMany(Review::class, 'review_by');
+
+    public function submissions()
+    {
+    return $this->hasMany(Submission::class, 'tech_id');
+    }
+
+    public function sentMessages()
+    {
+    return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+    return $this->hasMany(Message::class, 'receiver_id');
+    }
+
 }
 
-public function reviewsReceived()
-{
-    return $this->hasMany(Review::class, 'review_to');
-}
-  
 
-}
