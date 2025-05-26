@@ -1,21 +1,31 @@
 <?php
 
 namespace Database\Seeders;
-
+use Faker\Generator;
+use Faker\Factory as Faker;
+use \App\Models\Jobpost;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\JobPost;
-use App\Models\User;
 
-class JobPostSeeder extends Seeder
+class JobpostSeeder extends Seeder
 {
     public function run(): void
     {
-        // تأكد من وجود مستخدمين
-        if (User::count() == 0) {
-            \App\Models\User::factory(5)->create();
-        }
-
-        // أنشئ 10 وظائف وهمية
-        JobPost::factory(10)->create();
+        Jobpost::factory()->count(10)->create();
+         //$faker = Faker::create();
+       /* for($i=0;$i<100;$i++){
+            Jobpost::create([
+                'title'=>$faker->randomElement(['fixing my kitchen','painting the walls', 'moving furniture', 'installing shelves', 'repairing the roof']),
+                'category'=>"carpenter",
+                'maximum_budget'=>"100",
+                'minimum_budget'=>"10",
+                'deadline'=>$faker->dateTimeBetween('now', '+1 year'),
+                'status'=>$faker->randomElement(['pending','in progress', 'completed']),
+                'attachments'=>$faker->imageUrl(),
+                'location'=>$faker->city(),
+                'description'=>$faker->paragraph(),
+                'user_id'=>$faker->numberBetween(1, 7), 
+            ]);
+        }*/
     }
 }
