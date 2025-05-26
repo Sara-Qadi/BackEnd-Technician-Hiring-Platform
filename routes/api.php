@@ -38,7 +38,23 @@ Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
 
 // Notification routes
-Route::get('/notifications/{userId}', [NotificationsController::class, 'index']);
+Route::get('/notifications/{userId}', function ($userId) {
+    return [
+        [
+            'notification_id' => 201,
+            'user_id' => $userId,
+            'message' => 'Dummy notification 1',
+            'read_status' => 'unread',
+        ],
+        [
+            'notification_id' => 202,
+            'user_id' => $userId,
+            'message' => 'Dummy notification 2',
+            'read_status' => 'read',
+        ],
+    ];
+});
+
 Route::patch('/notifications/{notificationId}/read', [NotificationsController::class, 'markAsRead']);
 Route::delete('/notifications/{notificationId}', [NotificationsController::class, 'destroy']);
 
