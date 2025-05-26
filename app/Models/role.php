@@ -3,18 +3,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+class role extends Model
 {
-    protected $table = 'role';
-    protected $primaryKey = 'RoleId';
+    protected $table = 'roles';
+    protected $primaryKey = 'role_id';
     public $timestamps = false;
 
     protected $fillable = [
-        'Name'
+        'name'
     ];
 
     public function users()
     {
-        return $this->hasMany(User::class, 'RoleId');
+        return $this->hasMany(User::class, 'role_id');
     }
 }

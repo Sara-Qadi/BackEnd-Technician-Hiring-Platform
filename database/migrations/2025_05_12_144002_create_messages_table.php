@@ -6,15 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-  public function up(): void{Schema::create('messages', function (Blueprint $table) {
-        $table->unsignedBigInteger('ReciverId');
-        $table->unsignedBigInteger('SenderId')->index('fk_sender');
-        $table->text('MessageContent') ;
-        $table->primary(['ReciverId', 'SenderId']);
-        $table->foreign('ReciverId')->references('ReciverId')->on('users')->onDelete('cascade');
-        $table->foreign('SenderId')->references('SenderId')->on('users')->onDelete('cascade');
-    });
-}
+    public function up(): void
+    {
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('receiver_id');
+            $table->unsignedBigInteger('sender_id');
+            $table->text('message_content');
 
-       public function down(): void{Schema::dropIfExists('messages');}
+            $table->foreign('receiver_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('sender_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('messages');
+    }
 };
