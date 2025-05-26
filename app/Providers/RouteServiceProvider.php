@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+
+
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -50,5 +53,6 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('api')
             // ->namespace($this->namespace) // optional
             ->group(base_path('routes/api.php'));
+
     }
 }

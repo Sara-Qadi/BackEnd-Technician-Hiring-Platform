@@ -1,13 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+//use App\Http\Controllers\AdminController;
+//use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ReportsController;
 
-use App\Http\Controllers\NotificationsController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\JobpostController;
-use App\Http\Controllers\SubmissionController;
+//Route::get('admin/allUsers', [AdminController::class, 'getAllUsers']);
+//Route::delete('admin/deleteUsers/{id}', [AdminController::class, 'deleteUser']);
+
+//use App\Http\Controllers\ReportsController;
+
+//use App\Http\Controllers\NotificationsController;
+//use App\Http\Controllers\ProfileController;
+//use App\Http\Controllers\JobpostController;
+//use App\Http\Controllers\SubmissionController;
 
 // Route::prefix('api')->group(function () {
 //     // Notification routes

@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Models\Review;
 
+
 class JobPost extends Model
 {
     use HasFactory;
 
-    protected $table = 'jobposts'; // تأكد من اسم الجدول الصحيح
+    protected $table = 'jobposts';
+
+
     protected $primaryKey = 'jobpost_id';
 
     protected $fillable = [

@@ -8,16 +8,19 @@ return new class extends Migration
 {
 
   public function up(): void{Schema::create('report', function (Blueprint $table) {
-    $table->increments('ReportId');
-    $table->unsignedBigInteger('UserId');
-    $table->unsignedBigInteger('jobpost_id');
-    $table->text('reason');
-    $table->string('ReportType')->nullable();
 
-        $table->foreign('UserId')->references('UserId')->on('users')->onDelete('cascade');
-            $table->foreign('jobpost_id')->references('jobpost_id')->on('jobpost')->onDelete('cascade');
-        });
-    }
+    $table->increments('report_id');
+    $table->unsignedBigInteger('user_id');
+    $table->unsignedBigInteger('jobpost_id')->nullable();
+    $table->text('reason');
+    $table->string('report_type')->nullable();
+    $table->timestamps();
+    $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+    $table->foreign('jobpost_id')->references('jobpost_id')->on('jobposts')->onDelete('cascade');
+  });
+  }
+
+  
 
   public function down(): void{Schema::dropIfExists('report');}
 };

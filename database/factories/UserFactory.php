@@ -3,6 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\User;
+
+use App\Models\Role;
+
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,13 +15,19 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
+        $roleId = Role::inRandomOrder()->first()->role_id ?? 1;
+
         return [
             'user_name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => Hash::make('password'), // كلمة مرور وهمية
-            'phone' => $this->faker->phoneNumber(),
+
+            'phone' => substr($this->faker->phoneNumber(), 0, 10),
+            'password' => Hash::make('password'),
             'country' => $this->faker->country(),
-            'role_id' => 1, // تأكد أن role_id = 1 موجود في جدول roles
+            'role_id' => $roleId,
+
+           
+
         ];
     }
 }

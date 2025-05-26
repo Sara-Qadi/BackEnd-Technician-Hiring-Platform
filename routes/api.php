@@ -1,5 +1,9 @@
 <?php
 
+
+
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationsController;
@@ -11,14 +15,25 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthController;
-
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
+//admin
+Route::get('admin/allUsers', [AdminController::class, 'getAllUsers']);
+Route::delete('admin/deleteUsers/{id}', [AdminController::class, 'deleteUser']);
+Route::put('admin/updateUsers/{user_id}', [AdminController::class, 'updateUser']);
+Route::post('admin/createUsers', [AdminController::class, 'createUser']);
+Route::get('admin/getAllJobPosts', [AdminController::class, 'getAllJobPosts']);
+Route::delete('admin/deleteJobPost/{id}', [AdminController::class, 'deleteJobPost']);
+Route::get('admin/pendingTechnician', [AdminController::class, 'pendingRequestTechnician']);
+Route::put('admin/acceptTechnician/{id}', [AdminController::class, 'acceptTechnician']);
+Route::delete('admin/rejectTechnician/{id}', [AdminController::class, 'rejectTechnician']);
+Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
 
 
@@ -87,5 +102,6 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
 
 

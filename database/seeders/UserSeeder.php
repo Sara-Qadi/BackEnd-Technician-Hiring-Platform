@@ -4,12 +4,18 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+
+
 use Illuminate\Support\Facades\Hash;
+
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
+
+        User::factory()->count(10)->create();
+
         $users = [
             // Admins
             [
@@ -75,5 +81,6 @@ class UserSeeder extends Seeder
         foreach ($users as $user) {
             User::create($user);
         }
+
     }
 }

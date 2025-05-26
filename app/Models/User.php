@@ -3,6 +3,7 @@
 namespace App\Models;
 use Laravel\Sanctum\HasApiTokens;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Submission; 
@@ -16,6 +17,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class User extends Authenticatable
 {
 
+    use  HasFactory, Notifiable  ;
+
+
 use HasApiTokens, HasFactory, Notifiable;
 
   
@@ -25,7 +29,7 @@ use HasApiTokens, HasFactory, Notifiable;
     protected $primaryKey = 'user_id';
       use HasFactory;
     protected $fillable = [
-        'user_name', 
+        'user_name',
         'email',
         'phone',
         'password',
