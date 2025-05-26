@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
-  public function jobCompletionReport()
+    public function jobCompletionReport()
     {
         $data = DB::table('jobposts')
             ->selectRaw('MONTH(created_at) as month_number')
             ->selectRaw('MONTHNAME(MIN(created_at)) as month')
             ->selectRaw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_jobs')
             ->selectRaw('SUM(CASE WHEN status = "cancelled" THEN 1 ELSE 0 END) as cancelled_jobs')
-            ->selectRaw('SUM(CASE WHEN status = "in_progress" THEN 1 ELSE 0 END) as in_progress_jobs')
+            ->selectRaw('SUM(CASE WHEN status = "in progress" THEN 1 ELSE 0 END) as in_progress_jobs')
             ->selectRaw('ROUND(SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) * 100 / COUNT(*), 1) as completion_rate')
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->orderBy('month_number')
@@ -33,7 +33,8 @@ class ReportsController extends Controller
             }),
         ]);
     }
-     public function earningsReport()
+
+    public function earningsReport()
     {
         $report = DB::table('users')
             ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
@@ -51,31 +52,36 @@ class ReportsController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json($report);
+        return response()->json([
+            'headers' => ['User ID', 'User Name', 'Completed Jobs', 'Avg Job Price', 'Total Earnings', 'Job Completion Rate'],
+            'data' => $report
+        ]);
     }
 
     public function topRatedArtisansReport()
     {
         $report = DB::table('users')
-    ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
-    ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
-    ->select(
-        'users.user_id',
-        'users.user_name',
-        'jobposts.category',
-        DB::raw('ROUND(AVG(profiles.rating) / 20, 1) as rating'),
-        DB::raw('COUNT(jobposts.jobpost_id) as completed_jobs'),
-        DB::raw('ROUND(AVG(profiles.rating), 1) as satisfaction_rate')
-    )
-    ->groupBy('users.user_id', 'users.user_name', 'jobposts.category')
-    ->orderByDesc('rating')
-    ->get();
+            ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
+            ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
+            ->select(
+                'users.user_id',
+                'users.user_name',
+                'jobposts.category',
+                DB::raw('ROUND(AVG(profiles.rating) / 20, 1) as rating'),
+                DB::raw('COUNT(jobposts.jobpost_id) as completed_jobs'),
+                DB::raw('ROUND(AVG(profiles.rating), 1) as satisfaction_rate')
+            )
+            ->groupBy('users.user_id', 'users.user_name', 'jobposts.category')
+            ->orderByDesc('rating')
+            ->get();
 
-
-        return response()->json($report);
+        return response()->json([
+            'headers' => ['User ID', 'User Name', 'Category', 'Rating', 'Completed Jobs', 'Satisfaction Rate'],
+            'data' => $report
+        ]);
     }
 
-   public function lowPerformanceUsersReport()
+    public function lowPerformanceUsersReport()
     {
         $report = DB::table('users')
             ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
@@ -93,10 +99,13 @@ class ReportsController extends Controller
             ->orderBy('avg_rating')
             ->get();
 
-        return response()->json($report);
+        return response()->json([
+            'headers' => ['User Name', 'Role', 'Avg Rating', 'Flags', 'Last Reported Issue', 'Action Required'],
+            'data' => $report
+        ]);
     }
 
-     public function monthlyActivityReport()
+    public function monthlyActivityReport()
     {
         $report = DB::table('users')
             ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
@@ -110,7 +119,10 @@ class ReportsController extends Controller
             ->groupBy(DB::raw('MONTH(jobposts.created_at)'), DB::raw('MONTHNAME(jobposts.created_at)'))
             ->get();
 
-        return response()->json($report);
+        return response()->json([
+            'headers' => ['Month', 'New Users', 'Jobs Posted', 'Jobs Completed', 'Total Earnings'],
+            'data' => $report
+        ]);
     }
 
     public function locationBasedDemandReport()
@@ -126,10 +138,13 @@ class ReportsController extends Controller
             ->groupBy('location')
             ->get();
 
-        return response()->json($report);
+        return response()->json([
+            'headers' => ['City', 'Jobs Posted', 'Top Category', 'Active Artisans', 'Demand/Supply Ratio'],
+            'data' => $report
+        ]);
     }
-    
-     public function topJobFinishersReport()
+
+    public function topJobFinishersReport()
     {
         $report = DB::table('users')
             ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
@@ -144,8 +159,10 @@ class ReportsController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json($report);
+        return response()->json([
+            'headers' => ['User Name', 'Completed Jobs', 'Total Earnings'],
+            'data' => $report
+        ]);
     }
-
 }
 

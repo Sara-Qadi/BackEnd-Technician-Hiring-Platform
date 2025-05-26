@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jobposts', function (Blueprint $table) {
-            $table->increments('jobpost_id');
+            //$table->increments('jobpost_id');
             $table->id('jobpost_id');
             $table->string('title');
             $table->string('category');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('location');
             $table->text('description')->nullable();
             $table->timestamps();
-            $table->unsignedInteger('user_id');
+            //$table->unsignedInteger('user_id');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
            
             //$table->unsignedInteger('user_id');
