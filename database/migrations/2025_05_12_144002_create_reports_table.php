@@ -8,6 +8,7 @@ return new class extends Migration
 {
 
   public function up(): void{Schema::create('report', function (Blueprint $table) {
+
     $table->increments('report_id');
     $table->unsignedBigInteger('user_id');
     $table->unsignedBigInteger('jobpost_id')->nullable();
@@ -18,6 +19,8 @@ return new class extends Migration
     $table->foreign('jobpost_id')->references('jobpost_id')->on('jobposts')->onDelete('cascade');
   });
   }
+
+  
 
   public function down(): void{Schema::dropIfExists('report');}
 };

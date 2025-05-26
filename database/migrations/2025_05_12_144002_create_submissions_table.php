@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submissions', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('tech_id');
-            $table->unsignedInteger('jobpost_id');
-            $table->boolean('status_agreed')->default(false);
-            $table->timestamps();
+        Schema::create('appliesfor', function (Blueprint $table) {
+            $table->integer('proposal_id');
+            $table->integer('UserId');
+            $table->integer('JobpostId');
+    
+
+            $table->primary(['JobpostId', 'UserId']);
+            $table->unique(['proposal_id', 'UserId'], 'proposal_id');
+            $table->unique(['proposal_id', 'JobpostId'], 'proposalid_2');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('submissions');
+        Schema::dropIfExists('appliesfor');
     }
 };
