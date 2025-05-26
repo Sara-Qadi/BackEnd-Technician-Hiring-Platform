@@ -11,7 +11,12 @@ class JobpostController extends Controller
    public function allPosts(){
         return JobPost::orderBy('deadline', 'asc')->get();
     }
-    public function countPosts(){
+    
+    public function filterJobs($title){
+    return JobPost::where('title', 'like', "%$title%")->get();
+    }
+
+    public function count(){
         return JobPost::where('jobpost_id','>',0)->count();
     }
     
