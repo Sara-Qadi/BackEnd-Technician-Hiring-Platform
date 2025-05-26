@@ -26,7 +26,10 @@ return new class extends Migration
             $table->timestamps();
             //$table->unsignedInteger('user_id');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
-            //$table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+           
+            //$table->unsignedInteger('user_id');
+            //$table->date('created-at');
+           // $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 

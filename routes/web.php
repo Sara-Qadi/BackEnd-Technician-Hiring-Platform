@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\ReportsController;
+
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JobpostController;
@@ -30,6 +33,12 @@ use App\Http\Controllers\SubmissionController;
 //     Route::post('/submission/reject', [SubmissionController::class, 'reject']);
 // });
 
+
 Route::get('/', function () {
     return view('welcome');
+
+    
 });
+
+
+

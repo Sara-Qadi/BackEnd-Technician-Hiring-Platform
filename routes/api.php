@@ -8,7 +8,10 @@ use App\Http\Controllers\JobpostController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthController;
+
 
 
 Route::get('/user', function (Request $request) {
@@ -59,6 +62,21 @@ Route::get('/users/technicians', [UserController::class, 'getTechnicians']);
 Route::get('/users/owners', [UserController::class, 'getJobOwners']);
 Route::get('/users/admins', [UserController::class, 'getAdmins']);
 
+
+// review routes
+Route::post('/reviews', [ReviewController::class,'store']);
+Route::get('/users/{user_id}/reviews', [ReviewController::class,'getUserReviews']);
+Route::get('/users/{user_id}/average-rating', [ReviewController::class,'getUserAverageRating']);
+
+//reports routes
+Route::get('/reports/completion', [ReportsController::class,'jobCompletionReport']);
+Route::get('/reports/earnings', [ReportsController::class,'earningsReport']);
+Route::get('/reports/top-rated', [ReportsController::class,'topRatedArtisansReport']);
+Route::get('/reports/low-performance', [ReportsController::class, 'lowPerformanceUsersReport']);
+Route::get('/reports/monthly-activity', [ReportsController::class, 'monthlyActivityReport']);
+Route::get('/reports/top-job-finishers', [ReportsController::class,'topJobFinishersReport']);
+Route::get('/reports/location-demand', [ReportsController::class, 'locationBasedDemandReport']);
+
 //Auth routes
 Route::middleware('auth:sanctum')->get('/test-token', function (Request $request) {
     return $request->user();
@@ -69,4 +87,5 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
 
