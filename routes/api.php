@@ -8,6 +8,7 @@ use App\Http\Controllers\JobpostController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 
 
 Route::get('/user', function (Request $request) {
@@ -58,5 +59,14 @@ Route::get('/users/technicians', [UserController::class, 'getTechnicians']);
 Route::get('/users/owners', [UserController::class, 'getJobOwners']);
 Route::get('/users/admins', [UserController::class, 'getAdmins']);
 
+//Auth routes
+Route::middleware('auth:sanctum')->get('/test-token', function (Request $request) {
+    return $request->user();
+});
+Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
+    return $request->user();
+});
 
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
