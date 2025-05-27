@@ -15,7 +15,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthController;
-use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AdminController;
 
 
@@ -107,6 +107,8 @@ Route::get('/reports/low-performance', [ReportsController::class, 'lowPerformanc
 Route::get('/reports/monthly-activity', [ReportsController::class, 'monthlyActivityReport']);
 Route::get('/reports/top-job-finishers', [ReportsController::class,'topJobFinishersReport']);
 Route::get('/reports/location-demand', [ReportsController::class, 'locationBasedDemandReport']);
+Route::get('/export-all-reports', [ReportsController::class, 'exportAllReports']);
+
 
 //Auth routes
 Route::middleware('auth:sanctum')->get('/test-token', function (Request $request) {
