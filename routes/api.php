@@ -1,9 +1,6 @@
 <?php
 
 
-
-
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationsController;
@@ -15,9 +12,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthController;
-
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -63,6 +59,7 @@ Route::get('/profiles/{user_id}', [ProfileController::class, 'show']);
 Route::put('/profiles/{user_id}', [ProfileController::class, 'update']);
 Route::post('/profiles', [ProfileController::class, 'store']);
 
+
 // Jobpost routes
 Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
 Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
@@ -71,6 +68,10 @@ Route::delete('/jobpost/deletepost/{id}', [JobpostController::class, 'deletePost
 Route::post('/jobpost/addpost', [JobpostController::class, 'addPost']);
 Route::put('/jobpost/updatepost/{id}', [JobpostController::class, 'updatePost']);
 Route::post('/jobposts/download', [JobPostController::class, 'downloadfiles']);
+
+// search for jobpost omar
+Route::get('/jobpost/filterJobs/{title}', [JobpostController::class, 'filterJobs']);
+
 
 // Submission routes
 Route::post('/submission/accept', [SubmissionController::class, 'acceptProposal']);
@@ -121,5 +122,7 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::post('/submission/accept', [SubmissionController::class, 'accept']);
+Route::post('/submission/reject', [SubmissionController::class, 'reject']);
 
 

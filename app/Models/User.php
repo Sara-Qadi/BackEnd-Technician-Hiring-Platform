@@ -6,10 +6,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Submission; 
-use App\Models\Message; 
+use App\Models\Submission;
+use App\Models\Message;
 
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 
@@ -22,8 +22,8 @@ class User extends Authenticatable
 
 use HasApiTokens, HasFactory, Notifiable;
 
-  
-    
+
+
 
     protected $table = 'users';
     protected $primaryKey = 'user_id';
@@ -67,14 +67,21 @@ use HasApiTokens, HasFactory, Notifiable;
     return $this->hasMany(Submission::class, 'tech_id');
     }
 
+    // omar     
     public function sentMessages()
     {
-    return $this->hasMany(Message::class, 'sender_id');
+        return $this->hasMany(Message::class, 'sender_id', 'user_id');
     }
 
     public function receivedMessages()
     {
-    return $this->hasMany(Message::class, 'receiver_id');
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+
+    public function Proposal()
+    {
+        return $this->hasMany(Proposal::class, 'tech_id', 'user_id');
     }
 
 }
