@@ -20,14 +20,18 @@ Route::get('/user', function (Request $request) {
 
 //admin
 Route::get('admin/allUsers', [AdminController::class, 'getAllUsers']);
-Route::delete('admin/deleteUsers/{id}', [AdminController::class, 'deleteUser']);
+Route::delete('admin/users/{id}', [AdminController::class, 'deleteUser']);
 Route::put('admin/updateUsers/{user_id}', [AdminController::class, 'updateUser']);
-Route::post('admin/createUsers', [AdminController::class, 'createUser']);
+
 Route::get('admin/getAllJobPosts', [AdminController::class, 'getAllJobPosts']);
 Route::delete('admin/deleteJobPost/{id}', [AdminController::class, 'deleteJobPost']);
+
+
 Route::get('admin/pendingTechnician', [AdminController::class, 'pendingRequestTechnician']);
-Route::put('admin/acceptTechnician/{id}', [AdminController::class, 'acceptTechnician']);
-Route::delete('admin/rejectTechnician/{id}', [AdminController::class, 'rejectTechnician']);
+Route::put('admin/acceptTechnician/{user_id}', [AdminController::class, 'acceptTechnician']);
+Route::delete('admin/rejectTechnician/{user_id}', [AdminController::class, 'rejectTechnician']);
+
+
 Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
 
@@ -61,8 +65,10 @@ Route::post('/profiles', [ProfileController::class, 'store']);
 
 // Jobpost routes
 Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
+Route::get('/jobpost/allPostsforTech',[JobPostController::class ,'allPostsforTech']);
 Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
 Route::get('/jobpost/showpost/{id}', [JobpostController::class, 'showpost']);
+Route::get('/jobpost/showuserposts/{id}', [JobpostController::class, 'showUserposts']);
 Route::delete('/jobpost/deletepost/{id}', [JobpostController::class, 'deletePost']);
 Route::post('/jobpost/addpost', [JobpostController::class, 'addPost']);
 Route::put('/jobpost/updatepost/{id}', [JobpostController::class, 'updatePost']);
@@ -73,11 +79,13 @@ Route::get('/jobpost/filterJobs/{title}', [JobpostController::class, 'filterJobs
 
 
 // Submission routes
-Route::post('/submission/accept', [SubmissionController::class, 'acceptProposal']);
-Route::post('/submission/reject', [SubmissionController::class, 'rejectProposal']);
+Route::put('/submission/accept/{id}', [SubmissionController::class, 'accept']);
+Route::put('/submission/reject/{id}', [SubmissionController::class, 'reject']);
 
 // Proposal routes
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
+Route::get('/proposals/jobpost/{id}', [ProposalController::class, 'returnProposalsByJobPost']);
+Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
 Route::post('/proposal/addproposal', [ProposalController::class, 'makeNewProposals']);
 Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::put('/proposal/updateproposal/{id}', [ProposalController::class, 'updateProposal']);
