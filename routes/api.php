@@ -119,6 +119,27 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+
+// Route for testing middleware based on token ability
+Route::middleware(['auth:sanctum', 'ability:admin'])->get('/admin/dashboard', function (Request $request) {
+    return response()->json([
+        'message' => 'Hello Admin! You are authorized.',
+        'user' => $request->user(),
+    ]);
+});
+
+
+
+Route::middleware('auth:sanctum')->get('/debug/token', function (Request $request) {
+    return response()->json([
+        'tokenAbilities' => $request->user()->currentAccessToken()->abilities,
+        'tokenCanAdmin' => $request->user()->tokenCan('admin'),
+        'tokenCanOwner' => $request->user()->tokenCan('owner'),
+    ]);
+});
+
+
+
 Route::post('/submission/accept', [SubmissionController::class, 'accept']);
 Route::post('/submission/reject', [SubmissionController::class, 'reject']);
 
