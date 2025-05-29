@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 use App\Models\Proposal;
@@ -10,6 +11,20 @@ class ProposalController extends Controller
     public function returnAllProposals()
     {
         return response()->json(Proposal::all());
+    }
+    public function returnProposalsByJobPost($id)
+    {
+        //$proposals = Proposal::where('jobpost_id', $id)->get();
+        //return response()->json($proposals);
+        $proposals = DB::table('proposals')
+        ->join('users', 'proposals.tech_id', '=', 'users.user_id')
+        ->select('proposals.*', 'users.user_name', 'users.country')
+        ->where('proposals.jobpost_id', $id)->get();
+        return response()->json($proposals);
+    }
+     public function countProposalsByJobPost($id)
+    {
+        return Proposal::where('jobpost_id', $id)->where('jobpost_id','>',0)->count();
     }
 
     public function makeNewProposals(Request $request)

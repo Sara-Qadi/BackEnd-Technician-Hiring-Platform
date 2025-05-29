@@ -24,7 +24,7 @@ class JobPost extends Model
         'minimum_budget',
         'deadline',
         'status',
-        'attachments',
+        //'attachments',
         'location',
         'description',
         'user_id',
