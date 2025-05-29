@@ -18,18 +18,43 @@ class ProfileController extends Controller
         return response()->json($profile);
     }
 
-    public function update(Request $request, $userId)
-    {
-        $profile = Profile::find($userId);
+   public function update(Request $request, $userId)
+{
+    $profile = Profile::where('user_id', $userId)->first();
 
-        if (!$profile) {
-            return response()->json(['message' => 'Profile not found'], 404);
-        }
-
-        $profile->update($request->only(['cv', 'rating']));
-
-        return response()->json(['message' => 'Profile updated', 'profile' => $profile]);
+    if (!$profile) {
+        return response()->json(['message' => 'Profile not found'], 404);
     }
+
+    // Validate input
+    $validated = $request->validate([
+        'specialty' => 'sometimes|string|max:255',
+        'description' => 'sometimes|string',
+        'cv' => 'sometimes|file|mimes:pdf,doc,docx|max:2048',
+    ]);
+
+    if ($request->hasFile('cv')) {
+        $cvFile = $request->file('cv');
+        $cvPath = $cvFile->store('cvs', 'public'); // stores in storage/app/public/cvs
+
+        // Delete old CV file if you want here (optional)
+
+        $profile->cv = $cvPath;
+    }
+
+    if (isset($validated['specialty'])) {
+        $profile->specialty = $validated['specialty'];
+    }
+
+    if (isset($validated['description'])) {
+        $profile->description = $validated['description'];
+    }
+
+    $profile->save();
+
+    return response()->json(['message' => 'Profile updated', 'profile' => $profile]);
+}
+
 
     public function store(Request $request)
     {

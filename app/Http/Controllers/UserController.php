@@ -112,4 +112,23 @@ public function getAdmins()
 }
 
 
+public function updateName(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+    ]);
+
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $user->user_name = $request->name;
+    $user->save();
+
+    return response()->json(['message' => 'Name updated successfully', 'user_name' => $user->user_name]);
 }
+
+}
+

@@ -61,6 +61,9 @@ Route::delete('/notifications/{notificationId}', [NotificationsController::class
 Route::get('/profiles/{user_id}', [ProfileController::class, 'show']);
 Route::put('/profiles/{user_id}', [ProfileController::class, 'update']);
 Route::post('/profiles', [ProfileController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/user/name', [UserController::class, 'updateName']);
+Route::middleware('auth:sanctum')->post('/update-profile/{userId}', [ProfileController::class, 'update']);
+
 
 // Jobpost routes
 Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
