@@ -13,7 +13,6 @@ class JobPostFactory extends Factory
     public function definition(): array
     {
         return [
-/*<<<<<<< Updated upstream
             'title' => $this->faker->jobTitle,
             'category' => $this->faker->word,
             'maximum_budget' => $this->faker->numberBetween(1000, 5000),
@@ -24,7 +23,6 @@ class JobPostFactory extends Factory
             'location' => $this->faker->city,
             'description' => $this->faker->paragraph,
             'user_id' => User::inRandomOrder()->first()->user_id,
-=======*/
             'title' =>fake()->randomElement([
                 'fixing my kitchen',
                 'painting the walls',
@@ -53,7 +51,6 @@ class JobPostFactory extends Factory
             'location' => fake()->city(),
             'description' => fake()->paragraph(),
             'user_id' => fake()->numberBetween(1, 7),
-/*>>>>>>> Stashed changes*/
         ];
     }
 }
