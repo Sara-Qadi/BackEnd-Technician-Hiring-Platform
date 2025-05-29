@@ -65,14 +65,21 @@ use HasApiTokens, HasFactory, Notifiable;
     return $this->hasMany(Submission::class, 'tech_id');
     }
 
+    // omar     
     public function sentMessages()
     {
-    return $this->hasMany(Message::class, 'sender_id');
+        return $this->hasMany(Message::class, 'sender_id', 'user_id');
     }
 
     public function receivedMessages()
     {
-    return $this->hasMany(Message::class, 'receiver_id');
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+
+    public function Proposal()
+    {
+        return $this->hasMany(Proposal::class, 'tech_id', 'user_id');
     }
 
 }
