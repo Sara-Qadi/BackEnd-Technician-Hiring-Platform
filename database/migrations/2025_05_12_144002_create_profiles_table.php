@@ -13,11 +13,15 @@ return new class extends Migration
     {
   Schema::create('profiles', function (Blueprint $table) {
     $table->unsignedBigInteger('user_id')->primary();
-    $table->binary('photo')->nullable();
-    $table->text('cv')->nullable();
+$table->string('photo')->nullable();
+
+   $table->string('cv')->nullable();
+
     $table->integer('rating')->default(0);
 
+
     $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+
 });
 
     }
