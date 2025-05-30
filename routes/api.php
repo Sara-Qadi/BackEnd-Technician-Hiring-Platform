@@ -133,3 +133,4 @@ Route::post('/submission/reject', [SubmissionController::class, 'reject']);
 //dashboard
 Route::get('/dashboard/total-posts', [JobpostController::class, 'getTotalJobPosts']);
 Route::get('/dashboard/total-submissions', [SubmissionController::class, 'getTotalSubmissions']);
+Route::get('/dashboard/jobposts-per-month', [JobpostController::class, 'getMonthlyJobPostCounts']);
