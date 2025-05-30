@@ -12,8 +12,8 @@ use App\Models\User;
 class SubmissionController extends Controller
 {
 
-    public function acceptProposal(Request $request){
-        $submission = Proposal::find($request->proposal_id);
+    public function accept($id){
+        $submission = Proposal::find($id);
         if (!$submission) {
             return response('proposal not found', 404);
         }
@@ -34,26 +34,29 @@ class SubmissionController extends Controller
             'message' => 'Your offer has been accepted by the job owner.',
         ]);
 
-        return redirect()->back();
+        return response()->json([
+            'message' => 'accepted this proposal',
+            'data' => $submission
+        ], 200);
     }
 
-    public function rejectProposal(Request $request){
-        $submission = Proposal::find($request->proposal_id);
+    public function reject($id){
+        $submission = Proposal::find($id);
 
         if (!$submission) {
             return response('proposal not found', 404);
         }
 
-        /*// تعيين status_agreed إلى 0
+        // تعيين status_agreed إلى 0
         $submission->status_agreed = 0;
-        $submission->save();*/
+        $submission->save();
         $job = $submission->jobPost;
         if ($job) {
             $job->status = 'pending';
             $job->save();
         }
         // حذف البروبوزل المرتبط
-        $submission->delete();
+        //$submission->delete();
 
         // Notify the technician that their offer was rejected
         Notification::create([
@@ -63,7 +66,10 @@ class SubmissionController extends Controller
             'message' => 'Your offer has been rejected by the job owner.',
         ]);
 
-        return redirect()->back();
+        return response()->json([
+            'message' => 'rejected this proposal',
+            'data' => $submission
+        ], 200);
     }
 
 }

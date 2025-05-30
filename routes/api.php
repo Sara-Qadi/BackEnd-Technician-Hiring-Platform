@@ -20,49 +20,48 @@ Route::get('/user', function (Request $request) {
 
 //admin
 Route::get('admin/allUsers', [AdminController::class, 'getAllUsers']);
-Route::delete('admin/deleteUsers/{id}', [AdminController::class, 'deleteUser']);
+Route::delete('admin/users/{id}', [AdminController::class, 'deleteUser']);
 Route::put('admin/updateUsers/{user_id}', [AdminController::class, 'updateUser']);
-Route::post('admin/createUsers', [AdminController::class, 'createUser']);
+
 Route::get('admin/getAllJobPosts', [AdminController::class, 'getAllJobPosts']);
 Route::delete('admin/deleteJobPost/{id}', [AdminController::class, 'deleteJobPost']);
+
+
 Route::get('admin/pendingTechnician', [AdminController::class, 'pendingRequestTechnician']);
-Route::put('admin/acceptTechnician/{id}', [AdminController::class, 'acceptTechnician']);
-Route::delete('admin/rejectTechnician/{id}', [AdminController::class, 'rejectTechnician']);
+Route::put('admin/acceptTechnician/{user_id}', [AdminController::class, 'acceptTechnician']);
+Route::delete('admin/rejectTechnician/{user_id}', [AdminController::class, 'rejectTechnician']);
+
+
 Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
+//notification
 
+Route::prefix('notifications')->group(function () {
+    // GET /api/notifications/{userId}
+    Route::get('{userId}', [NotificationsController::class, 'index']);
 
-// Notification routes
-Route::get('/notifications/{userId}', function ($userId) {
-    return [
-        [
-            'notification_id' => 201,
-            'user_id' => $userId,
-            'message' => 'Dummy notification 1',
-            'read_status' => 'unread',
-        ],
-        [
-            'notification_id' => 202,
-            'user_id' => $userId,
-            'message' => 'Dummy notification 2',
-            'read_status' => 'read',
-        ],
-    ];
+    // POST /api/notifications
+    Route::post('', [NotificationsController::class, 'store']);
+
+    // PUT /api/notifications/mark-as-read/{notificationId}
+    Route::put('mark-as-read/{notificationId}', [NotificationsController::class, 'markAsRead']);
+
+    // DELETE /api/notifications/{notificationId}
+    Route::delete('{notificationId}', [NotificationsController::class, 'destroy']);
 });
 
-Route::patch('/notifications/{notificationId}/read', [NotificationsController::class, 'markAsRead']);
-Route::delete('/notifications/{notificationId}', [NotificationsController::class, 'destroy']);
-
 // Profile routes
-Route::get('/profiles/{user_id}', [ProfileController::class, 'show']);
-Route::put('/profiles/{user_id}', [ProfileController::class, 'update']);
-Route::post('/profiles', [ProfileController::class, 'store']);
+
+Route::middleware('auth:sanctum')->post('/user/name', [UserController::class, 'updateName']);
+
 
 
 // Jobpost routes
 Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
+Route::get('/jobpost/allPostsforTech',[JobPostController::class ,'allPostsforTech']);
 Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
 Route::get('/jobpost/showpost/{id}', [JobpostController::class, 'showpost']);
+Route::get('/jobpost/showuserposts/{id}', [JobpostController::class, 'showUserposts']);
 Route::delete('/jobpost/deletepost/{id}', [JobpostController::class, 'deletePost']);
 Route::post('/jobpost/addpost', [JobpostController::class, 'addPost']);
 Route::put('/jobpost/updatepost/{id}', [JobpostController::class, 'updatePost']);
@@ -73,11 +72,13 @@ Route::get('/jobpost/filterJobs/{title}', [JobpostController::class, 'filterJobs
 
 
 // Submission routes
-Route::post('/submission/accept', [SubmissionController::class, 'acceptProposal']);
-Route::post('/submission/reject', [SubmissionController::class, 'rejectProposal']);
+Route::put('/submission/accept/{id}', [SubmissionController::class, 'accept']);
+Route::put('/submission/reject/{id}', [SubmissionController::class, 'reject']);
 
 // Proposal routes
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
+Route::get('/proposals/jobpost/{id}', [ProposalController::class, 'returnProposalsByJobPost']);
+Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
 Route::post('/proposal/addproposal', [ProposalController::class, 'makeNewProposals']);
 Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::put('/proposal/updateproposal/{id}', [ProposalController::class, 'updateProposal']);
@@ -115,11 +116,38 @@ Route::middleware('auth:sanctum')->get('/test-token', function (Request $request
 Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     return $request->user();
 });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'store']);
+});
+
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+
+// Route for testing middleware based on token ability
+Route::middleware(['auth:sanctum', 'ability:admin'])->get('/admin/dashboard', function (Request $request) {
+    return response()->json([
+        'message' => 'Hello Admin! You are authorized.',
+        'user' => $request->user(),
+    ]);
+});
+
+
+
+Route::middleware('auth:sanctum')->get('/debug/token', function (Request $request) {
+    return response()->json([
+        'tokenAbilities' => $request->user()->currentAccessToken()->abilities,
+        'tokenCanAdmin' => $request->user()->tokenCan('admin'),
+        'tokenCanOwner' => $request->user()->tokenCan('owner'),
+    ]);
+});
+
+
+
 Route::post('/submission/accept', [SubmissionController::class, 'accept']);
 Route::post('/submission/reject', [SubmissionController::class, 'reject']);
+
 
 

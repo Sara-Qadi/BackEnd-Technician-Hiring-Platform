@@ -7,33 +7,98 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function show($userId)
+    public function show(Request $request)
     {
-        $profile = Profile::with('user')->find($userId);
+        $user = $request->user();
+        $profile = Profile::where('user_id', $user->user_id)->first();
 
-        if (!$profile) {
-            return response()->json(['message' => 'Profile not found'], 404);
-        }
-
-        return response()->json($profile);
+        return response()->json([
+            'user_id' => $user->user_id,
+            'user_name' => $user->user_name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'country' => $user->country,
+            'specialty' => $profile?->specialty,
+            'description' => $profile?->description,
+            'cv' => $profile?->cv,
+            'rating' => $profile?->rating,
+            'photo' => $profile?->photo,
+        ]);
     }
 
-    public function update(Request $request, $userId)
+    public function update(Request $request)
     {
-        $profile = Profile::find($userId);
+        $user = $request->user();
+        $profile = Profile::where('user_id', $user->user_id)->first();
 
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
 
-        $profile->update($request->only(['cv', 'rating']));
+        $validated = $request->validate([
+            'specialty' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'cv' => 'sometimes|file|mimes:pdf,doc,docx|max:2048',
+            'photo' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048', // changed to 'photo'
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $imagePath = $request->file('photo')->store('profile_pictures', 'public');
+            $profile->photo = $imagePath;
+        }
+
+        if ($request->hasFile('cv')) {
+            $cvPath = $request->file('cv')->store('cvs', 'public');
+            $profile->cv = $cvPath;
+        }
+
+        if (isset($validated['specialty'])) {
+            $profile->specialty = $validated['specialty'];
+        }
+
+        if (isset($validated['description'])) {
+            $profile->description = $validated['description'];
+        }
+
+        $profile->save();
 
         return response()->json(['message' => 'Profile updated', 'profile' => $profile]);
     }
 
     public function store(Request $request)
     {
-        $profile = Profile::create($request->only(['user_id', 'photo', 'cv', 'rating']));
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'specialty' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'cv' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $existingProfile = Profile::where('user_id', $user->user_id)->first();
+        if ($existingProfile) {
+            return response()->json(['message' => 'Profile already exists'], 400);
+        }
+
+        $cvPath = null;
+        if ($request->hasFile('cv')) {
+            $cvPath = $request->file('cv')->store('cvs', 'public');
+        }
+
+        $imagePath = null;
+        if ($request->hasFile('photo')) {
+            $imagePath = $request->file('photo')->store('profile_pictures', 'public');
+        }
+
+        $profile = Profile::create([
+            'user_id' => $user->user_id,
+            'specialty' => $validated['specialty'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'cv' => $cvPath,
+            'photo' => $imagePath,
+            'rating' => 0,
+        ]);
 
         return response()->json(['message' => 'Profile created', 'profile' => $profile]);
     }
