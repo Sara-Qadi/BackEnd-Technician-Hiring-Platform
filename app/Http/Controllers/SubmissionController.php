@@ -72,4 +72,12 @@ class SubmissionController extends Controller
         ], 200);
     }
 
+    //sara
+public function getTotalSubmissions()
+{
+    $total = Proposal::count();
+    return response()->json(['total_submissions' => $total]);
+}
+
+
 }
