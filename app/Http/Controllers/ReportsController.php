@@ -36,18 +36,20 @@ class ReportsController extends Controller
         ]);
     }
 
-   public function earningsReport()
+ public function earningsReport()
 {
     $data = DB::table('users')
         ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
         ->join('reviews', 'users.user_id', '=', 'reviews.review_to')
         ->where('jobposts.status', 'done') 
-        ->selectRaw('users.user_id')
-        ->selectRaw('MAX(users.user_name) as user_name')
-        ->selectRaw('COUNT(jobposts.jobpost_id) as completed_jobs')
-        ->selectRaw('ROUND(AVG(jobposts.maximum_budget), 2) as avg_job_price')
-        ->selectRaw('SUM(jobposts.maximum_budget) as total_earnings')
-        ->selectRaw('ROUND(AVG(reviews.rating) * 20, 1) as job_completion_rate')
+        ->selectRaw('
+            users.user_id,
+            MAX(users.user_name) as user_name,
+            COUNT(jobposts.jobpost_id) as completed_jobs,
+            ROUND(AVG(jobposts.maximum_budget), 2) as avg_job_price,
+            SUM(jobposts.maximum_budget) as total_earnings,
+            ROUND(AVG(reviews.rating) * 20, 1) as job_completion_rate
+        ')
         ->groupBy('users.user_id')
         ->orderByDesc('total_earnings')
         ->limit(10)
@@ -55,16 +57,20 @@ class ReportsController extends Controller
 
     return response()->json([
         'headers' => ['User ID', 'User Name', 'Completed Jobs', 'Avg Job Price', 'Total Earnings', 'Job Completion Rate'],
-        'data' => $data->map(fn($row) => [
-            $row->user_id,
-            $row->user_name,
-            $row->completed_jobs,
-            $row->avg_job_price,
-            $row->total_earnings,
-            $row->job_completion_rate . '%',
-        ]),
+        'data' => $data->map(function ($row) {
+            return [
+                $row->user_id,
+                $row->user_name,
+                $row->completed_jobs,
+                $row->avg_job_price,
+                $row->total_earnings,
+                $row->job_completion_rate . '%',
+            ];
+        }),
     ]);
 }
+
+
 
 
    public function topRatedArtisansReport()

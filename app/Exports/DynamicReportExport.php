@@ -1,14 +1,14 @@
 <?php
-
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class DynamicReportExport implements FromArray, WithTitle
+class DynamicReportExport implements FromArray, WithHeadings, WithTitle
 {
-    protected array $data;
     protected array $headers;
+    protected array $data;
     protected string $title;
 
     public function __construct(array $headers, array $data, string $title)
@@ -20,7 +20,12 @@ class DynamicReportExport implements FromArray, WithTitle
 
     public function array(): array
     {
-        return [$this->headers, ...$this->data];
+        return $this->data;
+    }
+
+    public function headings(): array
+    {
+        return $this->headers;
     }
 
     public function title(): string
@@ -28,3 +33,4 @@ class DynamicReportExport implements FromArray, WithTitle
         return $this->title;
     }
 }
+
