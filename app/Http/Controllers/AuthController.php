@@ -8,6 +8,8 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    
+
     public function login(Request $request)
     {
         $request->validate([
@@ -21,13 +23,22 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $token = $user->createToken('login_token')->plainTextToken;
+        // نحدد نوع الصلاحية حسب الدور
+        $ability = match ($user->role_id) {
+            1 => 'admin',
+            2 => 'owner',
+            3 => 'technician',
+            default => 'guest'
+        };
+
+        $token = $user->createToken('login_token', [$ability])->plainTextToken;
 
         return response()->json([
             'token' => $token,
             'user' => $user
         ]);
     }
+
 
     public function register(Request $request)
     {
@@ -49,7 +60,15 @@ class AuthController extends Controller
              'password' => Hash::make($request->password),
          ]);
      
-         $token = $user->createToken('register_token')->plainTextToken;
+         // نحدد نوع الصلاحية حسب الدور
+        $ability = match ($user->role_id) {
+            1 => 'admin',
+            2 => 'owner',
+            3 => 'technician',
+            default => 'guest'
+        };
+
+        $token = $user->createToken('login_token', [$ability])->plainTextToken;
      
          return response()->json([
              'token' => $token,

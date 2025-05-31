@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps(); // to add 2 columns: created_at, updated_at
             $table->unsignedInteger('role_id');
             $table->rememberToken();
-            //$table->boolean('is_approved')->default(false);
+            $table->boolean('is_approved')->default(false);
 
 
             $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
