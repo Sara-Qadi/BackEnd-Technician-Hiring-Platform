@@ -119,7 +119,10 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'store']);
+        Route::post('/profile/update', [ProfileController::class, 'update']);
 });
+
+
 
 
 Route::post('/login', [AuthController::class, 'login']);
