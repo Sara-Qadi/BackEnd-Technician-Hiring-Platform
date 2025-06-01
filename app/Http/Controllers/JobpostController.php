@@ -272,5 +272,20 @@ public function getTotalJobPosts()
     return response()->json(['total_posts' => $count]);
 }
 
+public function getMonthlyJobPostCounts()
+{
+    $counts = DB::table('jobposts')
+        ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->orderBy(DB::raw('MONTH(created_at)'))
+        ->get();
+
+    return response()->json($counts);
+}
+
+
 
 }
+
+
+

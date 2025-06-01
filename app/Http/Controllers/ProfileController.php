@@ -26,44 +26,35 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
-    {
-        $user = $request->user();
-        $profile = Profile::where('user_id', $user->user_id)->first();
+public function update(Request $request)
+{
+    $user = auth()->user();
 
-        if (!$profile) {
-            return response()->json(['message' => 'Profile not found'], 404);
-        }
-
-        $validated = $request->validate([
-            'specialty' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'cv' => 'sometimes|file|mimes:pdf,doc,docx|max:2048',
-            'photo' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048', // changed to 'photo'
-        ]);
-
-        if ($request->hasFile('photo')) {
-            $imagePath = $request->file('photo')->store('profile_pictures', 'public');
-            $profile->photo = $imagePath;
-        }
-
-        if ($request->hasFile('cv')) {
-            $cvPath = $request->file('cv')->store('cvs', 'public');
-            $profile->cv = $cvPath;
-        }
-
-        if (isset($validated['specialty'])) {
-            $profile->specialty = $validated['specialty'];
-        }
-
-        if (isset($validated['description'])) {
-            $profile->description = $validated['description'];
-        }
-
-        $profile->save();
-
-        return response()->json(['message' => 'Profile updated', 'profile' => $profile]);
+    if ($request->filled('name')) {
+        $user->user_name = $request->input('name');
+        $user->save();
     }
+
+    $profile = $user->profile ?? new Profile();
+    $profile->user_id = $user->user_id;
+    $profile->specialty = $request->input('specialty');
+    $profile->description = $request->input('description');
+
+    if ($request->hasFile('cv')) {
+        $cvPath = $request->file('cv')->store('cvs', 'public');
+        $profile->cv = $cvPath;
+    }
+
+    if ($request->hasFile('photo')) {
+        $photoPath = $request->file('photo')->store('photos', 'public');
+        $profile->photo = $photoPath;
+    }
+
+    $profile->save();
+
+    return response()->json(['message' => 'Profile updated successfully']);
+}
+
 
     public function store(Request $request)
     {

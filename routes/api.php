@@ -119,7 +119,10 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'store']);
+        Route::post('/profile/update', [ProfileController::class, 'update']);
 });
+
+
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -154,3 +157,5 @@ Route::post('/submission/reject', [SubmissionController::class, 'reject']);
 //dashboard
 Route::get('/dashboard/total-posts', [JobpostController::class, 'getTotalJobPosts']);
 Route::get('/dashboard/total-submissions', [SubmissionController::class, 'getTotalSubmissions']);
+Route::get('/dashboard/jobposts-per-month', [JobpostController::class, 'getMonthlyJobPostCounts']);
+Route::get('/users/pending-approvals', [UserController::class, 'countPendingApprovals']);
