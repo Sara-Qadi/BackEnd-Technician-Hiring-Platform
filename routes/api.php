@@ -34,33 +34,26 @@ Route::delete('admin/rejectTechnician/{user_id}', [AdminController::class, 'reje
 
 Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
+//notification
 
+Route::prefix('notifications')->group(function () {
+    // GET /api/notifications/{userId}
+    Route::get('{userId}', [NotificationsController::class, 'index']);
 
-// Notification routes
-Route::get('/notifications/{userId}', function ($userId) {
-    return [
-        [
-            'notification_id' => 201,
-            'user_id' => $userId,
-            'message' => 'Dummy notification 1',
-            'read_status' => 'unread',
-        ],
-        [
-            'notification_id' => 202,
-            'user_id' => $userId,
-            'message' => 'Dummy notification 2',
-            'read_status' => 'read',
-        ],
-    ];
+    // POST /api/notifications
+    Route::post('', [NotificationsController::class, 'store']);
+
+    // PUT /api/notifications/mark-as-read/{notificationId}
+    Route::put('mark-as-read/{notificationId}', [NotificationsController::class, 'markAsRead']);
+
+    // DELETE /api/notifications/{notificationId}
+    Route::delete('{notificationId}', [NotificationsController::class, 'destroy']);
 });
 
-Route::patch('/notifications/{notificationId}/read', [NotificationsController::class, 'markAsRead']);
-Route::delete('/notifications/{notificationId}', [NotificationsController::class, 'destroy']);
-
 // Profile routes
-Route::get('/profiles/{user_id}', [ProfileController::class, 'show']);
-Route::put('/profiles/{user_id}', [ProfileController::class, 'update']);
-Route::post('/profiles', [ProfileController::class, 'store']);
+
+Route::middleware('auth:sanctum')->post('/user/name', [UserController::class, 'updateName']);
+
 
 
 // Jobpost routes
@@ -123,6 +116,14 @@ Route::middleware('auth:sanctum')->get('/test-token', function (Request $request
 Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     return $request->user();
 });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'store']);
+        Route::post('/profile/update', [ProfileController::class, 'update']);
+});
+
+
+
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -152,3 +153,9 @@ Route::post('/submission/accept', [SubmissionController::class, 'accept']);
 Route::post('/submission/reject', [SubmissionController::class, 'reject']);
 
 
+
+//dashboard
+Route::get('/dashboard/total-posts', [JobpostController::class, 'getTotalJobPosts']);
+Route::get('/dashboard/total-submissions', [SubmissionController::class, 'getTotalSubmissions']);
+Route::get('/dashboard/jobposts-per-month', [JobpostController::class, 'getMonthlyJobPostCounts']);
+Route::get('/users/pending-approvals', [UserController::class, 'countPendingApprovals']);

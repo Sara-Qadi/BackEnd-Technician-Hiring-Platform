@@ -112,4 +112,31 @@ public function getAdmins()
 }
 
 
+public function updateName(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+    ]);
+
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $user->user_name = $request->name;
+    $user->save();
+
+    return response()->json(['message' => 'Name updated successfully', 'user_name' => $user->user_name]);
 }
+
+//sara
+public function countPendingApprovals()
+{
+    $pendingCount = User::where('is_approved', 0)->count();
+    return response()->json(['pending_approvals' => $pendingCount]);
+}
+
+
+}
+

@@ -31,15 +31,16 @@ class JobpostController extends Controller
             ->orderBy('deadline', 'asc')->get();
         return response()->json($jobposts);
     }
-    
-    public function filterJobs($title){
-    return JobPost::where('title', 'like', "%$title%")->get();
-    }
+
+   public function filterJobs($title){
+     return JobPost::where('title', 'like', "%$title%")->where('jobposts.status', 'pending')->get();
+}
+
 
     public function count(){
         return JobPost::where('jobpost_id','>',0)->count();
     }
-    
+
     public function showUserposts($id){
         $user = User::where('user_id', $id)->first();
     if (!$user) {
@@ -55,7 +56,7 @@ class JobpostController extends Controller
 
     return response()->json($jobposts);
     }
-   
+
     /*public function showpost($id){
         $job=JobPost::find($id);
         if (!$job) {
@@ -77,7 +78,7 @@ class JobpostController extends Controller
 
     return response()->json($jobpost);
 }
-    
+
     /*public function deletePost(Request $request){
         $job = JobPost::find($request->id);
 
@@ -99,7 +100,7 @@ class JobpostController extends Controller
         return response()->json('Job deleted successfully');
     }
     public function addPost(Request $request){
-        
+
         return $this->jobpost->create($request->all());
        /* $job = new JobPost();
         $job->title = $request->title;
@@ -173,7 +174,7 @@ class JobpostController extends Controller
     }*/
    /* public function updatePost(Request $request, $id)
 {
-    
+
     $jobpost=$this->jobpost->find($id);
     $jobpost->update($request->all());
     return response()->json([
@@ -229,7 +230,7 @@ public function updatePost(Request $request, $id)
     $jobpost->update($request->only(
         'title', 'category', 'minimum_budget', 'maximum_budget', 'deadline', 'location', 'description'
     ));
-    
+
 
     return response()->json([
         'message' => 'Job updated successfully',
@@ -265,4 +266,27 @@ public function updatePost(Request $request, $id)
     return Storage::disk('public')->download($filePath, $attachmentFile);
 }
 
+//sara
+public function getTotalJobPosts()
+{
+    $count = JobPost::count();
+    return response()->json(['total_posts' => $count]);
 }
+
+public function getMonthlyJobPostCounts()
+{
+    $counts = DB::table('jobposts')
+        ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->orderBy(DB::raw('MONTH(created_at)'))
+        ->get();
+
+    return response()->json($counts);
+}
+
+
+
+}
+
+
+
