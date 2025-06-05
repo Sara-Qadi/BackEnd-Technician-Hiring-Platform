@@ -13,6 +13,7 @@ class ProposalController extends Controller
     {
         return response()->json(Proposal::all());
     }
+    
     public function returnProposalsByJobPost($id)
     {
         //$proposals = Proposal::where('jobpost_id', $id)->get();
@@ -28,6 +29,7 @@ class ProposalController extends Controller
         return Proposal::where('jobpost_id', $id)->where('jobpost_id','>',0)->count();
     }
 
+ 
    public function makeNewProposals(Request $request)
 {
     $request->validate([

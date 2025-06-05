@@ -32,9 +32,10 @@ class JobpostController extends Controller
         return response()->json($jobposts);
     }
 
-    public function filterJobs($title){
-    return JobPost::where('title', 'like', "%$title%")->get();
-    }
+   public function filterJobs($title){
+     return JobPost::where('title', 'like', "%$title%")->where('jobposts.status', 'pending')->get();
+}
+
 
     public function count(){
         return JobPost::where('jobpost_id','>',0)->count();
