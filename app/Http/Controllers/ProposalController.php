@@ -12,6 +12,7 @@ class ProposalController extends Controller
     {
         return response()->json(Proposal::all());
     }
+    
     public function returnProposalsByJobPost($id)
     {
         //$proposals = Proposal::where('jobpost_id', $id)->get();
@@ -33,8 +34,6 @@ class ProposalController extends Controller
             'price' => 'required|numeric|min:0',
             'status_agreed' => 'boolean',
             'description_proposal' => 'nullable|string',
-            //'tech_id' => 'nullable|exists:users,id',
-            //'jobpost_id' => 'nullable|exists:jobposts,id',
             'tech_id' => 'required|exists:users,user_id',
             'jobpost_id' => 'required|exists:jobposts,jobpost_id',
         ]);
