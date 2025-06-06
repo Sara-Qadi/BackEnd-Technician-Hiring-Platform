@@ -44,15 +44,15 @@ class ProposalController extends Controller
     // Get the job post to find the job owner's ID
     $jobPost = \App\Models\JobPost::find($request->jobpost_id);
 
-    if ($jobPost) {
-        // Create a notification for the job owner
-        Notification::create([
-            'user_id' => $jobPost->user_id,  // assuming `user_id` is the job owner's ID
-            'read_status' => "unread",
-            'type' => 'proposal',
-            'message' => 'You received a new proposal for your job post.',
-        ]);
-    }
+    // if ($jobPost) {
+    //     // Create a notification for the job owner
+    //     Notification::create([
+    //         'user_id' => $jobPost->user_id,  // assuming `user_id` is the job owner's ID
+    //         'read_status' => "unread",
+    //         'type' => 'proposal',
+    //         'message' => 'You received a new proposal for your job post.',
+    //     ]);
+    // }
 
     return response()->json([
         'message' => 'Proposal created successfully',
