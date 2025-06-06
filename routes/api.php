@@ -87,7 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/proposal/addproposal/{jobpost_id}', [ProposalController::class, 'makeNewProposals']);
     Route::put('/proposal/updateproposal/{id}', [ProposalController::class, 'updateProposal']);
     Route::delete('/proposal/deleteproposal/{id}', [ProposalController::class, 'deleteProposal']);
-    
+
 });
 Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
@@ -170,3 +170,9 @@ Route::get('/dashboard/total-posts', [JobpostController::class, 'getTotalJobPost
 Route::get('/dashboard/total-submissions', [SubmissionController::class, 'getTotalSubmissions']);
 Route::get('/dashboard/jobposts-per-month', [JobpostController::class, 'getMonthlyJobPostCounts']);
 Route::get('/users/pending-approvals', [UserController::class, 'countPendingApprovals']);
+Route::get('/dashboard/job-status-counts', [JobpostController::class, 'getJobStatusCounts']);
+
+
+
+Route::get('/completed-jobs', [JobpostController::class, 'completedJobsForTechnician']);
+
