@@ -9,6 +9,12 @@ use App\Models\Proposal;
 
 class ProposalController extends Controller
 {
+    public function __construct()
+{
+    $this->middleware('auth:sanctum')->only([
+        'makeNewProposals', 'updateProposal', 'deleteProposal'
+    ]);
+}
     public function returnAllProposals()
     {
         return response()->json(Proposal::all());
@@ -29,27 +35,30 @@ class ProposalController extends Controller
         return Proposal::where('jobpost_id', $id)->where('jobpost_id','>',0)->count();
     }
 
- 
-   public function makeNewProposals(Request $request)
+   public function makeNewProposals(Request $request, $jobpost_id)
 {
+    if ($user->role->role_id != 3) {
+        return response()->json(['message' => 'Unauthorized'], 403);}
     $request->validate([
         'price' => 'required|numeric|min:0',
-        'status_agreed' => 'boolean',
         'description_proposal' => 'nullable|string',
-        'tech_id' => 'required|exists:users,user_id',
-        'jobpost_id' => 'required|exists:jobposts,jobpost_id',
     ]);
 
-    // Create the proposal
-    $proposal = Proposal::create($request->all());
+    // تجهيز البيانات
+    $data = $request->only(['price', 'description_proposal']);
+    $data['jobpost_id'] = $jobpost_id;
+    $data['tech_id'] = auth()->user()->user_id;
+    $data['status_agreed'] = 'pending';
 
-    // Get the job post to find the job owner's ID
-    $jobPost = \App\Models\JobPost::find($request->jobpost_id);
+    // إنشاء البروبوزال
+    $proposal = Proposal::create($data);
 
+    
+    // إنشاء إشعار لصاحب الوظيفة
+    $jobPost = \App\Models\JobPost::find($jobpost_id);
     if ($jobPost) {
-        // Create a notification for the job owner
         Notification::create([
-            'user_id' => $jobPost->user_id,  // assuming `user_id` is the job owner's ID
+            'user_id' => $jobPost->user_id,
             'read_status' => "unread",
             'type' => 'proposal',
             'message' => 'You received a new proposal for your job post.',
@@ -61,6 +70,7 @@ class ProposalController extends Controller
         'data' => $proposal
     ], 201);
 }
+
 
 
 
@@ -83,6 +93,12 @@ class ProposalController extends Controller
         if (!$proposal) {
             return response()->json(['message' => 'Proposal not found'], 404);
         }
+        if ($proposal->tech_id !== auth()->user()->user_id) {
+           return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        if ($user->role->role_id != 3) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
         $request->validate([
             'price' => 'nullable|numeric|min:0',
@@ -90,11 +106,13 @@ class ProposalController extends Controller
             'description_proposal' => 'nullable|string',
             //'tech_id' => 'nullable|exists:users,id',
             //'jobpost_id' => 'nullable|exists:jobposts,id',
-            'tech_id' => 'required|exists:users,user_id',
-            'jobpost_id' => 'required|exists:jobposts,jobpost_id',
+            //'tech_id' => 'required|exists:users,user_id',
+            //'jobpost_id' => 'required|exists:jobposts,jobpost_id',
         ]);
 
-        $proposal->update($request->all());
+        $proposal->update($request->only([
+    'price', 'status_agreed', 'description_proposal'
+]));
 
         return response()->json([
             'message' => 'Proposal updated successfully',
@@ -106,8 +124,13 @@ class ProposalController extends Controller
     {
         $proposal = Proposal::find($id);
 
+        if ($user->role->role_id != 3) {
+        return response()->json(['message' => 'Unauthorized'], 403);}
         if (!$proposal) {
             return response()->json(['message' => 'Proposal not found'], 404);
+        }
+        if ($proposal->tech_id !== auth()->user()->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $proposal->delete();

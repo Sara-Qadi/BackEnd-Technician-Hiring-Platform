@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 
@@ -26,9 +26,34 @@ class ProfileController extends Controller
         ]);
     }
 
-public function update(Request $request)
+    public function showById($id)
 {
-    $user = auth()->user();
+    $user =User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $profile = Profile::where('user_id', $user->user_id)->first();
+
+    return response()->json([
+        'user_id' => $user->user_id,
+        'user_name' => $user->user_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'country' => $user->country,
+        'specialty' => $profile?->specialty,
+        'description' => $profile?->description,
+        'cv' => $profile?->cv,
+        'rating' => $profile?->rating,
+        'photo' => $profile?->photo,
+    ]);
+}
+
+    public function update(Request $request)
+    {
+        $user = $request->user();
+        $profile = Profile::where('user_id', $user->user_id)->first();
 
     if ($request->filled('name')) {
         $user->user_name = $request->input('name');
