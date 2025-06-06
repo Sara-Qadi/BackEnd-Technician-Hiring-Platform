@@ -13,7 +13,7 @@ class JobPostFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->jobTitle,
+            /*'title' => $this->faker->jobTitle,
             'category' => $this->faker->word,
             'maximum_budget' => $this->faker->numberBetween(1000, 5000),
             'minimum_budget' => $this->faker->numberBetween(500, 999),
@@ -22,7 +22,7 @@ class JobPostFactory extends Factory
             'attachments' => null,
             'location' => $this->faker->city,
             'description' => $this->faker->paragraph,
-            'user_id' => User::inRandomOrder()->first()->user_id,
+            'user_id' => User::inRandomOrder()->first()->user_id,*/
             'title' =>fake()->randomElement([
                 'fixing my kitchen',
                 'painting the walls',
