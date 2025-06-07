@@ -32,7 +32,8 @@ class MessagesController extends Controller
         $messages = Message::whereRaw('
             (sender_id = ? AND receiver_id = ?)
             OR (sender_id = ? AND receiver_id = ?)', 
-            [$sender_id, $receiver_id, $receiver_id, $sender_id])->get();
+            [$sender_id, $receiver_id, $receiver_id, $sender_id])->
+            orderby('id', 'asc')->get();
 
         return response()->json($messages);
     }
