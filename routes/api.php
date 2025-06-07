@@ -13,6 +13,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MessagesController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -159,3 +160,8 @@ Route::get('/dashboard/total-posts', [JobpostController::class, 'getTotalJobPost
 Route::get('/dashboard/total-submissions', [SubmissionController::class, 'getTotalSubmissions']);
 Route::get('/dashboard/jobposts-per-month', [JobpostController::class, 'getMonthlyJobPostCounts']);
 Route::get('/users/pending-approvals', [UserController::class, 'countPendingApprovals']);
+
+//massages
+Route::post('/messages/store', [MessagesController::class, 'storeMessage']);
+Route::get('/messages/get-conversation/{sender_id}/{receiver_id}', [MessagesController::class, 'getConversation']);
+Route::get('/messages/get-user-conversations/{user_id}', [MessagesController::class, 'getUserConversations']);
