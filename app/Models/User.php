@@ -12,6 +12,7 @@ use App\Models\Message;
 
 
 
+
 class User extends Authenticatable
 {
 

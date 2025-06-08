@@ -22,6 +22,7 @@ class ReportFactory extends Factory
             'jobpost_id' => $jobPost->jobpost_id,
             'reason' => $this->faker->sentence,
             'report_type' => $this->faker->randomElement(['spam', 'abuse', 'fraud']),
+            'reported_user_id' => 7,
         ];
     }
 
