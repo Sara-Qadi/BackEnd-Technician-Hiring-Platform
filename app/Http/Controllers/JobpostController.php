@@ -35,6 +35,54 @@ class JobpostController extends Controller
             ->orderBy('deadline', 'asc')->get();
         return response()->json($jobposts);
     }
+    public function allPendingPosts($id){
+        $user = User::where('user_id', $id)->first();
+        if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+        $jobposts = DB::table('jobposts')
+        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+        ->where('jobposts.user_id', $id)
+        ->where('jobposts.status', 'pending')
+        ->select('jobposts.*', 'users.user_id', 'users.user_name')
+        ->orderBy('jobposts.deadline', 'asc')
+        ->get();
+
+    return response()->json($jobposts);
+    }
+    public function allonProgressPosts($id){
+        $user = User::where('user_id', $id)->first();
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+        $jobposts = DB::table('jobposts')
+        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+        ->where('jobposts.user_id', $id)
+        ->where('jobposts.status', 'in progress')
+        ->select('jobposts.*', 'users.user_id', 'users.user_name')
+        ->orderBy('jobposts.deadline', 'asc')
+        ->get();
+
+    return response()->json($jobposts);
+    }
+    public function allCompletedPosts($id){
+        $user = User::where('user_id', $id)->first();
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+        $jobposts = DB::table('jobposts')
+        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+        ->where('jobposts.user_id', $id)
+        ->where('jobposts.status', 'completed')
+        ->select('jobposts.*', 'users.user_id', 'users.user_name')
+        ->orderBy('jobposts.deadline', 'asc')
+        ->get();
+
+    return response()->json($jobposts);
+    }
 
    public function filterJobs($title){
      return JobPost::where('title', 'like', "%$title%")->where('jobposts.status', 'pending')->get();
