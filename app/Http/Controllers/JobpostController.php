@@ -4,102 +4,218 @@ namespace App\Http\Controllers;
 use App\Models\JobPost;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class JobpostController extends Controller
 {
+    protected $jobpost;
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only([
+        'deletePost', 'updatePost', 'addPost'
+    ]);
+        $this->jobpost = new JobPost();
+    }
    public function allPosts(){
-        return JobPost::orderBy('deadline', 'asc')->get();
+        //return JobPost::orderBy('deadline', 'asc')->get();
+        $jobposts = DB::table('jobposts')
+            ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+            ->select('jobposts.*', 'users.user_id', 'users.user_name')
+            ->orderBy('deadline', 'asc')->get();
+        return response()->json($jobposts);
     }
-    
-    public function filterJobs($title){
-    return JobPost::where('title', 'like', "%$title%")->get();
+    public function allPostsforTech(){
+        //return JobPost::orderBy('deadline', 'asc')->get();
+        $jobposts = DB::table('jobposts')
+            ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+            ->select('jobposts.*', 'users.user_id', 'users.user_name')
+            ->where('jobposts.status', 'pending')
+            ->orderBy('deadline', 'asc')->get();
+        return response()->json($jobposts);
     }
+
+   public function filterJobs($title){
+     return JobPost::where('title', 'like', "%$title%")->where('jobposts.status', 'pending')->get();
+}
+
 
     public function count(){
         return JobPost::where('jobpost_id','>',0)->count();
     }
-    
-    public function showpost(Request $request){
-        $job=User::find($request->id);
+
+    public function showUserposts($id){
+        //$id = auth()->id();
+        $user = User::where('user_id', $id)->first();
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+        $jobposts = DB::table('jobposts')
+        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+        ->where('jobposts.user_id', $id)
+        ->select('jobposts.*', 'users.user_id', 'users.user_name')
+        ->orderBy('jobposts.deadline', 'asc')
+        ->get();
+
+    return response()->json($jobposts);
+    }
+
+    /*public function showpost($id){
+        $job=JobPost::find($id);
         if (!$job) {
-        return response('User not found', 404);
+        return response('job not found', 404);
     }
-        return $job->jobposts;
+        return $job;
+    }*/
+    public function showpost($id)
+{
+    $jobpost = DB::table('jobposts')
+        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+        ->where('jobposts.jobpost_id', $id)
+        ->select('jobposts.*', 'users.user_id', 'users.user_name')
+        ->first();
+
+    if (!$jobpost) {
+        return response()->json(['message' => 'Job post not found'], 404);
     }
 
-    public function deletePost(Request $request){
-        $job = JobPost::find($request->id);
+    return response()->json($jobpost);
+}
 
-        if (!$job) {
-            return response('Job not found', 404);
-        }
+    public function deletePost($id){
 
-        $job->delete();
-        return response('Job deleted successfully');
+     $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Not Authenticated'], 401);
     }
+
+    $job = JobPost::findOrFail($id);
+    if ($job->user_id !== $user->user_id) {
+        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    }
+
+    if ($user->role->role_id != 2) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+        $result=$job->delete();
+        return response()->json('Job deleted successfully');
+    }
+
     public function addPost(Request $request){
-       /* $job = new JobPost();
+         $validated = $request->validate([
+        'title' => 'required|string',
+        'category' => 'required|string',
+        'minimum_budget' => 'required|numeric|min:0',
+        'maximum_budget' => 'required|numeric|gte:minimum_budget',
+        'deadline' => 'required|date|after:today',
+        //'attachments' => 'nullable|array',
+        //'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'location' => 'required|string',
+        'description' => 'required|string|min:50',
+        'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+    ]);
+
+    $validated['user_id'] = auth()->id(); // 🔒 اربط البوست بالمستخدم المسجل
+    $validated['status'] = 'pending';
+    $filenames = [];
+    if ($request->hasFile('attachments')) {
+        foreach ($request->file('attachments') as $file) {
+            $originalName = $file->getClientOriginalName();
+            $path = $file->storeAs('attachments',$originalName, 'public'); // يخزن في storage/app/public/attachments
+            $filenames[] = $originalName;
+        }
+        $validated['attachments'] = json_encode($filenames); // نحفظها كنص JSON
+    }
+ $job = JobPost::create($validated);
+
+    return response()->json([
+        'message' => 'Job created successfully',
+        'data' => $job
+    ], 201);
+           /* $job = new JobPost();
         $job->title = $request->title;
         $job->description = $request->description;
         $job->user_id = $request->user_id;
         $job->save();
         return response('Job added successfully');*/
-        $post = $request->validate([
-            'title' => 'required|string',
-            'category' => 'required|string|in:carpenter,plumber,electrician,painter', //بضيف باقي الكاتيجوريز
-            'minimum_budget' => 'required|numeric|min:0',
-            'maximum_budget' => 'required|numeric|gte:minimum_budget',
-            'deadline' => 'required|date|after:today',
-            'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'location' => 'required|string',
-            'description' => 'required|string|min:50',
-            'user_id' => 'required|exists:users,user_id'
-        ]);
-        $post['status'] = 'pending';
-        if ($request->hasFile('attachments')) {
-            $path = $request->file('attachments')->store('attachments', 'public');
-            $post['attachments'] = $path;
+        /*$post = $request->validate([
+        'title' => 'required|string',
+        'category' => 'required|string|in:Carpenter,Plumber,Electrician,Painter,Mason,Roofing,Mechanic,Welder,Tiler,ACTechnician,CameraInstaller',
+        'minimum_budget' => 'required|numeric|min:0',
+        'maximum_budget' => 'required|numeric|gte:minimum_budget',
+        'deadline' => 'required|date|after:today',
+        'attachments' => 'nullable|array',
+        'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'location' => 'required|string',
+        'description' => 'required|string|min:50',
+        'user_id' => 'required|exists:users,user_id'
+    ]);
+
+    $post['status'] = 'pending';
+
+    // تخزين المرفقات إن وُجدت
+    if ($request->hasFile('attachments')) {
+        $paths = [];
+        foreach ($request->file('attachments') as $file) {
+            $paths[] = $file->store('attachments', 'public');
         }
-        $job = JobPost::create($post);
-        return response()->json([
-            'message' => 'Job created successfully',
-            'data' => $job
-        ], 201);
+        $post['attachments'] = json_encode($paths);
     }
-    public function updatePost(Request $request, $id){
-        //$job = JobPost::find($request->id);
-        $job = JobPost::find($id);
-        if (!$job) {
-            return response('Job not found', 404);
-        }
-        $request->validate([
-            'title' => 'required|string',
-            'category' => 'required|string|in:carpenter,plumber,electrician,painter', //بضيف باقي الكاتيجوريز
-            'minimum_budget' => 'required|numeric|min:0',
-            'maximum_budget' => 'required|numeric|gte:minimum_budget',
-            'deadline' => 'required|date|after:today',
-            'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'location' => 'required|string',
-            'description' => 'required|string|min:50',
-            'user_id' => 'required|exists:users,user_id'
-        ]);
-        /*$job->title = $request->title;
-        $job->description = $request->description;
-        $job->user_id = $request->user_id;
-        $job->save();
-        return response('Job updated successfully';)*/
-         $data = $request->all();
-        if ($request->hasFile('attachments')) {
-            $path = $request->file('attachments')->store('attachments', 'public');
-            $data['attachments'] = $path;
-        }
-        $job->update($data);
-        return response()->json([
-            'message' => 'Job updated successfully',
-            'jobpost' => $job
-        ]);
+
+    $job = JobPost::create($post);
+
+    return response()->json([
+        'message' => 'Job created successfully',
+        'data' => $job
+    ], 201);*/
     }
+   
+   
+public function updatePost(Request $request, $id)
+{
+    // التحقق من المصادقة أولاً
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Not Authenticated'], 401);
+    }
+
+    $job = JobPost::findOrFail($id);
+    if ($job->user_id !== $user->user_id) {
+        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    }
+
+    if ($user->role->role_id != 2) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    // جلب الوظيفة والتحقق من ملكيتها
+
+    // التحقق من البيانات (اختياري لكن مستحسن)
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'category' => 'required|string|max:255',
+        'minimum_budget' => 'required|numeric|min:0',
+        'maximum_budget' => 'required|numeric|gte:minimum_budget',
+        'deadline' => 'required|date|after:today',
+        'location' => 'nullable|string|max:255',
+        'description' => 'nullable|string',
+    ]);
+    //dd($validated);
+    // التحديث
+    $job->update($validated);
+    $job->refresh();
+    return response()->json([
+        'message' => 'Job updated successfully',
+        'data' => $job
+    ]);
+}
+
+
+
     public function downloadfiles(Request $request)
 {
     $request->validate([
@@ -108,10 +224,11 @@ class JobpostController extends Controller
 
     $jobPost = JobPost::where('jobpost_id', $request->jobpost_id)->first();
 
+    /******* */
     // تأكدي من وجود الملف
-    if (!$jobPost || !$jobPost->attachments) {
+    /*if (!$jobPost || !$jobPost->attachments) {
         return response()->json(['message' => 'Attachment not found'], 404);
-    }
+    }*/
 
     // في حال كان الحقل يحتوي أكثر من ملف، يمكن استخراج أول ملف مثلاً:
     $attachmentFile = json_decode($jobPost->attachments, true)[0] ?? $jobPost->attachments;
@@ -124,5 +241,56 @@ class JobpostController extends Controller
 
     return Storage::disk('public')->download($filePath, $attachmentFile);
 }
+ public function updatestatus($id){
+     /*$user = auth()->user();
+  if (!$user) {
+        return response()->json(['message' => 'Not Authenticated'], 401);
+    }*/
+
+    $job = JobPost::findOrFail($id);
+    /*if ($job->user_id !== $user->user_id) {
+        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    }
+
+    if ($user->role->role_id != 2) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }*/
+    $job['status'] = 'completed';
+    $job->save();
+    return response()->json(['message' => 'Job status updated successfully', 'job' => $job]);
+ }
+ public function downloadAttachmentByName($filename)
+{
+    $filePath = 'attachments/' . $filename;
+
+    if (Storage::disk('public')->exists($filePath)) {
+        return Storage::disk('public')->download($filePath);
+    } else {
+        return response()->json(['message' => 'File not found'], 404);
+    }
+}
+
+//sara
+public function getTotalJobPosts()
+{
+    $count = JobPost::count();
+    return response()->json(['total_posts' => $count]);
+}
+
+public function getMonthlyJobPostCounts()
+{
+    $counts = DB::table('jobposts')
+        ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->orderBy(DB::raw('MONTH(created_at)'))
+        ->get();
+
+    return response()->json($counts);
+}
+
+
 
 }
+
+
+

@@ -11,14 +11,21 @@ use App\Models\User;
 
 class SubmissionController extends Controller
 {
+    public function __construct()
+{
+    $this->middleware('auth:sanctum')->only(['accept', 'reject']);
+}
 
-    public function acceptProposal(Request $request){
-        $submission = Proposal::find($request->proposal_id);
+    public function accept($id){
+
+        $submission = Proposal::find($id);
         if (!$submission) {
             return response('proposal not found', 404);
         }
-
-        $submission->status_agreed = 1;
+        if ($submission->JobPost->user_id !== auth()->id()) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $submission->status_agreed = 'accepted'; 
         $submission->save();
 
         if ($submission->JobPost) {
@@ -34,26 +41,29 @@ class SubmissionController extends Controller
             'message' => 'Your offer has been accepted by the job owner.',
         ]);
 
-        return redirect()->back();
+        return response()->json([
+            'message' => 'accepted this proposal',
+            'data' => $submission
+        ], 200);
     }
 
-    public function rejectProposal(Request $request){
-        $submission = Proposal::find($request->proposal_id);
+    public function reject($id){
+        $submission = Proposal::find($id);
 
         if (!$submission) {
             return response('proposal not found', 404);
         }
 
-        /*// تعيين status_agreed إلى 0
-        $submission->status_agreed = 0;
-        $submission->save();*/
+        // تعيين status_agreed إلى 0
+        $submission->status_agreed = 'rejected'; 
+        $submission->save();
         $job = $submission->jobPost;
         if ($job) {
             $job->status = 'pending';
             $job->save();
         }
         // حذف البروبوزل المرتبط
-        $submission->delete();
+        //$submission->delete();
 
         // Notify the technician that their offer was rejected
         Notification::create([
@@ -63,7 +73,18 @@ class SubmissionController extends Controller
             'message' => 'Your offer has been rejected by the job owner.',
         ]);
 
-        return redirect()->back();
+        return response()->json([
+            'message' => 'rejected this proposal',
+            'data' => $submission
+        ], 200);
     }
+
+    //sara
+public function getTotalSubmissions()
+{
+    $total = Proposal::count();
+    return response()->json(['total_submissions' => $total]);
+}
+
 
 }

@@ -26,7 +26,7 @@ class AuthController extends Controller
         // نحدد نوع الصلاحية حسب الدور
         $ability = match ($user->role_id) {
             1 => 'admin',
-            2 => 'owner',
+            2 => 'jobowner',
             3 => 'technician',
             default => 'guest'
         };
@@ -71,7 +71,7 @@ class AuthController extends Controller
          // نحدد نوع الصلاحية حسب الدور
         $ability = match ($user->role_id) {
             1 => 'admin',
-            2 => 'owner',
+            2 => 'jobowner',
             3 => 'technician',
             default => 'guest'
         };
