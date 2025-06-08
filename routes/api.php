@@ -194,6 +194,11 @@ Route::post('/messages/store', [MessagesController::class, 'storeMessage']);
 Route::get('/messages/get-conversation/{sender_id}/{receiver_id}', [MessagesController::class, 'getConversation']);
 Route::get('/messages/get-user-conversations/{user_id}', [MessagesController::class, 'getUserConversations']);
 
-//forget password
+Route::post('/messages/get-Selected-User-To-Message/{sender_id}/{receiver_id}', [MessagesController::class, 'getSelectedUserToMessage']);
+
+
+
+
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
+
