@@ -15,7 +15,7 @@ use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MessagesController;
-
+use App\Http\Controllers\ForgotPasswordController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -175,6 +175,7 @@ Route::middleware('auth:sanctum')->get('/debug/token', function (Request $reques
     ]);
 });
 
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 
 Route::post('/submission/accept', [SubmissionController::class, 'accept']);
@@ -192,5 +193,12 @@ Route::get('/users/pending-approvals', [UserController::class, 'countPendingAppr
 Route::post('/messages/store', [MessagesController::class, 'storeMessage']);
 Route::get('/messages/get-conversation/{sender_id}/{receiver_id}', [MessagesController::class, 'getConversation']);
 Route::get('/messages/get-user-conversations/{user_id}', [MessagesController::class, 'getUserConversations']);
+
 Route::post('/messages/get-Selected-User-To-Message/{sender_id}/{receiver_id}', [MessagesController::class, 'getSelectedUserToMessage']);
+
+
+
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 
