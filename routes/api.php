@@ -160,7 +160,9 @@ Route::middleware('auth:sanctum')->get('/debug/token', function (Request $reques
     return response()->json([
         'tokenAbilities' => $request->user()->currentAccessToken()->abilities,
         'tokenCanAdmin' => $request->user()->tokenCan('admin'),
+        'tokenCanTechnician' => $request->user()->tokenCan('technician'),
         'tokenCanOwner' => $request->user()->tokenCan('jobowner'),
+
     ]);
 });
 
