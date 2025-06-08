@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Notification;
 use App\Models\Proposal;
+use App\Models\User;
+
 
 class ProposalController extends Controller
 {
@@ -37,24 +39,24 @@ class ProposalController extends Controller
 
    public function makeNewProposals(Request $request, $jobpost_id)
 {
+    $user = auth()->user();
+
     if ($user->role->role_id != 3) {
-        return response()->json(['message' => 'Unauthorized'], 403);}
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
     $request->validate([
         'price' => 'required|numeric|min:0',
         'description_proposal' => 'nullable|string',
     ]);
 
-    // تجهيز البيانات
     $data = $request->only(['price', 'description_proposal']);
     $data['jobpost_id'] = $jobpost_id;
-    $data['tech_id'] = auth()->user()->user_id;
+    $data['tech_id'] = $user->user_id;
     $data['status_agreed'] = 'pending';
 
-    // إنشاء البروبوزال
     $proposal = Proposal::create($data);
 
-    
-    // إنشاء إشعار لصاحب الوظيفة
     $jobPost = \App\Models\JobPost::find($jobpost_id);
     if ($jobPost) {
         Notification::create([
@@ -72,6 +74,15 @@ class ProposalController extends Controller
 }
 
 
+    public function getTechNameById($tech_id)
+    {
+        $tech = User::find($tech_id);
+        if (!$tech) {
+            return response()->json(['message' => 'Tech not found'], 404);
+        }
+        return response()->json($tech->user_name);
+    }
+    
 
 
     public function show($id)

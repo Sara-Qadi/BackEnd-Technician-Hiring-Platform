@@ -94,6 +94,8 @@ Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
 Route::get('/proposals/jobpost/{id}', [ProposalController::class, 'returnProposalsByJobPost']);
 Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
+Route::get('/proposals/getTechNameById/{id}', [ProposalController::class, 'getTechNameById']);
+
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);
