@@ -50,7 +50,14 @@ class AuthController extends Controller
              'country' => 'required|string|max:50',
              'role_id' => 'required|exists:roles,role_id'
          ]);
-     
+     //if role_id == tech then $isApproved = false; otherwise $isApproved = true;
+         if ($request->role_id == 3) {
+            $isApproved = false;
+        } else {
+            $isApproved = true;
+        }
+        
+         
          $user = User::create([
              'user_name' => $request->user_name,
              'email' => $request->email,
@@ -58,6 +65,7 @@ class AuthController extends Controller
              'country' => $request->country,
              'role_id' => $request->role_id,
              'password' => Hash::make($request->password),
+             'is_approved' => $isApproved,
          ]);
      
          // نحدد نوع الصلاحية حسب الدور
