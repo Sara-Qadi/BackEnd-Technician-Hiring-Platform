@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Review;
+
 class Profile extends Model
 {
     protected $table = 'profiles';
@@ -22,6 +23,8 @@ class Profile extends Model
         'photo',
         'cv',
         'rating',
+        'specialty',
+        'description',
     ];
 
     public function user(): BelongsTo
