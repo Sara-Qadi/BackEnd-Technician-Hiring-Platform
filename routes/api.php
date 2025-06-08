@@ -97,11 +97,15 @@ Route::get('/users/admins', [UserController::class, 'getAdmins']);
 
 
 // review routes
-Route::post('/reviews', [ReviewController::class,'store']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reviews', [ReviewController::class, 'store']);
+});
+
 Route::get('/users/{user_id}/reviews', [ReviewController::class,'getUserReviews']);
 Route::get('/users/{user_id}/average-rating', [ReviewController::class,'getUserAverageRating']);
 
 //reports routes
+Route::middleware('auth:sanctum')->group(function () {
 Route::get('/reports/completion', [ReportsController::class,'jobCompletionReport']);
 Route::get('/reports/earnings', [ReportsController::class,'earningsReport']);
 Route::get('/reports/top-rated', [ReportsController::class,'topRatedArtisansReport']);
@@ -110,7 +114,7 @@ Route::get('/reports/monthly-activity', [ReportsController::class, 'monthlyActiv
 Route::get('/reports/top-job-finishers', [ReportsController::class,'topJobFinishersReport']);
 Route::get('/reports/location-demand', [ReportsController::class, 'locationBasedDemandReport']);
 Route::get('/reports/export-all-reports', [ReportsController::class, 'exportAllReports']);
-
+});
 
 //Auth routes
 Route::middleware('auth:sanctum')->get('/test-token', function (Request $request) {

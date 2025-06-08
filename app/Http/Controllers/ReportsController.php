@@ -11,6 +11,10 @@ class ReportsController extends Controller
 {
     public function jobCompletionReport()
     {
+         $userId = auth()->id();
+           if (!in_array($user->role, [1, 2])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
         $data = DB::table('jobposts')
             ->selectRaw('MONTH(created_at) as month_number')
             ->selectRaw('MONTHNAME(MIN(created_at)) as month')
@@ -18,6 +22,7 @@ class ReportsController extends Controller
             ->selectRaw('SUM(CASE WHEN status = "cancelled" THEN 1 ELSE 0 END) as cancelled_jobs')
             ->selectRaw('SUM(CASE WHEN status = "in progress" THEN 1 ELSE 0 END) as in_progress_jobs')
             ->selectRaw('ROUND(SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) * 100 / COUNT(*), 1) as completion_rate')
+            ->where('user_id', $userId)
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->orderBy('month_number')
             ->get();
@@ -38,10 +43,15 @@ class ReportsController extends Controller
 
  public function earningsReport()
 {
+     $userId = auth()->id();
+       if (!in_array($user->role, [1, 2])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
     $data = DB::table('users')
         ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
         ->join('reviews', 'users.user_id', '=', 'reviews.review_to')
-        ->where('jobposts.status', 'done') 
+       ->where('status', 'completed')
+        ->where('user_id', $userId)
         ->selectRaw('
             users.user_id,
             MAX(users.user_name) as user_name,
@@ -75,9 +85,14 @@ class ReportsController extends Controller
 
    public function topRatedArtisansReport()
 {
+     $userId = auth()->id();
+       if (!in_array($user->role, [1, 2])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
     $data = DB::table('users')
         ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
         ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
+        ->where('user_id', $userId)
         ->selectRaw('users.user_id')
         ->selectRaw('MAX(users.user_name) as user_name')
         ->selectRaw('jobposts.category')
@@ -104,9 +119,14 @@ class ReportsController extends Controller
 
    public function lowPerformanceUsersReport()
 {
+     $userId = auth()->id();
+       if (!in_array($user->role, [1])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
     $data = DB::table('users')
         ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
         ->leftJoin('reviews', 'users.user_id', '=', 'reviews.review_to')
+        ->where('user_id', $userId)
         ->selectRaw('users.user_name')
         ->selectRaw('users.role_id as role')
         ->selectRaw('ROUND(AVG(reviews.rating), 1) as avg_rating')
@@ -134,6 +154,11 @@ class ReportsController extends Controller
 
    public function monthlyActivityReport()
 {
+
+     $userId = auth()->id();
+       if (!in_array($user->role, [1,2])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
     $data = DB::table('jobposts')
         ->selectRaw('MONTH(created_at) as month_number')
         ->selectRaw('MONTHNAME(MIN(created_at)) as month')
@@ -143,6 +168,7 @@ class ReportsController extends Controller
         ->selectRaw("SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as jobs_cancelled")
         ->selectRaw("SUM(CASE WHEN status = 'in progress' THEN 1 ELSE 0 END) as jobs_in_progress")
         ->selectRaw('ROUND(SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) * 100 / COUNT(*), 1) as completion_rate')
+        ->where('user_id', $userId)
         ->groupBy(DB::raw('MONTH(created_at)'))
         ->orderBy('month_number')
         ->get();
@@ -164,12 +190,17 @@ class ReportsController extends Controller
 
    public function locationBasedDemandReport()
 {
+     $userId = auth()->id();
+       if (!in_array($user->role, [1])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
     $data = DB::table('jobposts')
         ->selectRaw('location as city')
         ->selectRaw('COUNT(*) as jobs_posted')
         ->selectRaw('MAX(category) as top_category')
         ->selectRaw('COUNT(DISTINCT user_id) as active_artisans')
         ->selectRaw('ROUND(COUNT(*) / COUNT(DISTINCT user_id), 1) as demand_supply_ratio')
+        ->where('user_id', $userId)
         ->groupBy('location')
         ->get();
 
@@ -188,12 +219,17 @@ class ReportsController extends Controller
 
    public function topJobFinishersReport()
 {
+     $userId = auth()->id();
+       if (!in_array($user->role, [1])) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
     $data = DB::table('users')
         ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
         ->where('jobposts.status', 'open')
         ->selectRaw('users.user_name')
         ->selectRaw('COUNT(jobposts.jobpost_id) as completed_jobs')
         ->selectRaw('SUM(jobposts.maximum_budget) as total_earnings')
+        ->where('user_id', $userId)
         ->groupBy('users.user_id', 'users.user_name')
         ->orderByDesc('completed_jobs')
         ->limit(10)
