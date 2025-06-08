@@ -135,6 +135,7 @@ Route::middleware('auth:sanctum')->get('/debug/token', function (Request $reques
         'tokenAbilities' => $request->user()->currentAccessToken()->abilities,
         'tokenCanAdmin' => $request->user()->tokenCan('admin'),
         'tokenCanOwner' => $request->user()->tokenCan('owner'),
+        'tokenCanTechnician' => $request->user()->tokenCan('technician'),
     ]);
 });
 
