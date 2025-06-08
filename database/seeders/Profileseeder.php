@@ -14,7 +14,7 @@ class ProfileSeeder extends Seeder
 
         if ($user) {
             Profile::create([
-                'user_id' => $user->user_id,
+                'user_id' => $user->id,
                 'photo' => null,
                 'cv' => 'Experienced technician with skills in electronics.',
                 'rating' => 5,

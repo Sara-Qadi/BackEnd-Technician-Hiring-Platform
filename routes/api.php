@@ -12,7 +12,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthController;
+
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MessagesController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -93,6 +95,8 @@ Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
 Route::get('/proposals/jobpost/{id}', [ProposalController::class, 'returnProposalsByJobPost']);
 Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
+Route::get('/proposals/getTechNameById/{id}', [ProposalController::class, 'getTechNameById']);
+
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);
@@ -118,6 +122,8 @@ Route::get('/reports/low-performance', [ReportsController::class, 'lowPerformanc
 Route::get('/reports/monthly-activity', [ReportsController::class, 'monthlyActivityReport']);
 Route::get('/reports/top-job-finishers', [ReportsController::class,'topJobFinishersReport']);
 Route::get('/reports/location-demand', [ReportsController::class, 'locationBasedDemandReport']);
+Route::get('/reports/export-all-reports', [ReportsController::class, 'exportAllReports']);
+
 
 //Auth routes
 Route::middleware('auth:sanctum')->get('/test-token', function (Request $request) {
@@ -154,7 +160,9 @@ Route::middleware('auth:sanctum')->get('/debug/token', function (Request $reques
     return response()->json([
         'tokenAbilities' => $request->user()->currentAccessToken()->abilities,
         'tokenCanAdmin' => $request->user()->tokenCan('admin'),
+        'tokenCanTechnician' => $request->user()->tokenCan('technician'),
         'tokenCanOwner' => $request->user()->tokenCan('jobowner'),
+
     ]);
 });
 
@@ -176,3 +184,8 @@ Route::get('/dashboard/job-status-counts', [JobpostController::class, 'getJobSta
 
 Route::get('/completed-jobs', [JobpostController::class, 'completedJobsForTechnician']);
 
+
+//massages
+Route::post('/messages/store', [MessagesController::class, 'storeMessage']);
+Route::get('/messages/get-conversation/{sender_id}/{receiver_id}', [MessagesController::class, 'getConversation']);
+Route::get('/messages/get-user-conversations/{user_id}', [MessagesController::class, 'getUserConversations']);

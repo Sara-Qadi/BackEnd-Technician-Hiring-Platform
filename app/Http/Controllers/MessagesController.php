@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\role;
+
 
 class MessagesController extends Controller
 {
-    public function store(Request $request)
+    public function storeMessage(Request $request)
     {
         $request->validate([
             'sender_id' => 'required|exists:users,user_id',
@@ -27,39 +29,40 @@ class MessagesController extends Controller
 
     public function getConversation($sender_id, $receiver_id)
     {
-        $messages = Message::where([
-            ['sender_id', '=', $sender_id],
-            ['receiver_id', '=', $receiver_id]
-        ])->orWhere([
-            ['sender_id', '=', $receiver_id],
-            ['receiver_id', '=', $sender_id]
-        ])
-        ->orderBy('id', 'desc')
-        ->get();
+        $messages = Message::whereRaw('
+            (sender_id = ? AND receiver_id = ?)
+            OR (sender_id = ? AND receiver_id = ?)', 
+            [$sender_id, $receiver_id, $receiver_id, $sender_id])->
+            orderby('id', 'asc')->get();
 
         return response()->json($messages);
     }
 
     public function getUserConversations($user_id)
-    {
-        $messages = Message::where('sender_id', $user_id)
-            ->orWhere('receiver_id', $user_id)
-            ->get();
+{
+    $messages = Message::where('sender_id', $user_id)
+        ->orWhere('receiver_id', $user_id)
+        ->get();
 
-        $userIds = [];
+    $userIds = [];
 
-        foreach ($messages as $msg) {
-            if ($msg->sender_id != $user_id && !in_array($msg->sender_id, $userIds)) {
-                $userIds[] = $msg->sender_id;
-            }
-
-            if ($msg->receiver_id != $user_id && !in_array($msg->receiver_id, $userIds)) {
-                $userIds[] = $msg->receiver_id;
-            }
+    foreach ($messages as $msg) {
+        if ($msg->sender_id != $user_id && !in_array($msg->sender_id, $userIds)) {
+            $userIds[] = $msg->sender_id;
         }
 
-        $users = User::whereIn('user_id', $userIds)->get();
+        if ($msg->receiver_id != $user_id && !in_array($msg->receiver_id, $userIds)) {
+            $userIds[] = $msg->receiver_id;
+        }
+     }
+
+        $users = \DB::table('users')
+        ->join('roles', 'users.role_id', '=', 'roles.role_id')
+        ->whereIn('users.user_id', $userIds)
+        ->select('users.user_id', 'users.user_name', 'roles.name as role_name')
+        ->get();
 
         return response()->json($users);
     }
+
 }
