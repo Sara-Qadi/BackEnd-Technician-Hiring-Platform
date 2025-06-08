@@ -74,6 +74,9 @@ Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
 Route::get('/jobpost/showpost/{id}', [JobpostController::class, 'showpost']);
 Route::get('/jobpost/showuserposts/{id}', [JobpostController::class, 'showUserposts']);
 Route::get('/jobpost/allPostsforTech',[JobPostController::class ,'allPostsforTech']);
+Route::get('/jobpost/pending/{id}', [JobPostController::class, 'allPendingPosts']);
+Route::get('/jobpost/onprogress/{id}', [JobPostController::class, 'allonProgressPosts']);
+Route::get('/jobpost/completed/{id}', [JobPostController::class, 'allCompletedPosts']);
 
 
 Route::get('/attachments/download/{filename}', [JobPostController::class, 'downloadAttachmentByName']);
@@ -94,9 +97,15 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
 Route::get('/proposals/jobpost/{id}', [ProposalController::class, 'returnProposalsByJobPost']);
+Route::get('/proposals/jobpost/pending/{id}', [ProposalController::class, 'returnPendingProposalsforJO']);
+Route::get('/proposals/jobpost/accepted/{id}', [ProposalController::class, 'returnAcceptedProposalsforJO']);
+Route::get('/proposals/jobpostwithprop/{id}', [ProposalController::class, 'getJobPostswithProposals']);
+Route::get('/proposals/countjobpostwithprop/{id}', [ProposalController::class, 'countJobPostswithProposals']);
 Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
 Route::get('/proposals/getTechNameById/{id}', [ProposalController::class, 'getTechNameById']);
 
+Route::get('/proposals/jobpost/countforjo/{id}', [ProposalController::class, 'countAllProposalsforJO']);
+Route::get('/proposals/jobpost/proposalsforjo/{id}', [ProposalController::class, 'returnProposalsforJO']);
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);

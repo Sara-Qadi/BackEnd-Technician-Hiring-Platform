@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Notification;
+use App\Models\JobPost;
 use App\Models\Proposal;
 use App\Models\User;
 class ProposalController extends Controller
@@ -27,6 +28,59 @@ class ProposalController extends Controller
         ->where('proposals.jobpost_id', $id)->get();
         return response()->json($proposals);
     }
+    public function returnProposalsforJO($id){
+        $proposals=DB::table('proposals')
+        ->join('jobposts', 'proposals.jobpost_id', '=', 'jobposts.jobpost_id')
+        ->where('jobposts.user_id', $id)
+        ->select('proposals.*', 'jobposts.title', 'jobposts.deadline')
+        ->get();
+        return response()->json($proposals);
+    }
+    public function returnPendingProposalsforJO($id)
+{
+    $proposals = DB::table('proposals')
+        ->join('jobposts', 'proposals.jobpost_id', '=', 'jobposts.jobpost_id')
+        ->where('jobposts.user_id', $id)
+        ->where('proposals.status_agreed', 'pending')
+        ->select('proposals.*', 'jobposts.title', 'jobposts.deadline')
+        ->get();
+
+    return response()->json($proposals);
+}
+public function returnAcceptedProposalsforJO($id)
+{
+    $proposals = DB::table('proposals')
+        ->join('jobposts', 'proposals.jobpost_id', '=', 'jobposts.jobpost_id')
+        ->where('jobposts.user_id', $id)
+        ->where('proposals.status_agreed', 'accepted')
+        ->select('proposals.*', 'jobposts.title', 'jobposts.deadline')
+        ->get();
+
+    return response()->json($proposals);
+}
+    public function countAllProposalsforJO($id){
+        return DB::table('proposals')
+            ->join('jobposts', 'proposals.jobpost_id', '=', 'jobposts.jobpost_id')
+            ->where('jobposts.user_id', $id)
+            ->count();
+    }
+    public function getJobPostswithProposals($id)
+{
+    $jobPosts = JobPost::where('user_id', $id)
+        ->has('proposals') // فقط الوظائف التي لديها بروبوزلز
+        ->get();
+
+    return response()->json($jobPosts);
+}
+public function countJobPostswithProposals($id)
+{
+    $jobPosts = JobPost::where('user_id', $id)
+        ->has('proposals') // فقط الوظائف التي لديها بروبوزلز
+        ->count();
+
+    return response()->json($jobPosts);
+}
+
      public function countProposalsByJobPost($id)
     {
         return Proposal::where('jobpost_id', $id)->where('jobpost_id','>',0)->count();
@@ -34,9 +88,11 @@ class ProposalController extends Controller
    public function makeNewProposals(Request $request, $jobpost_id)
 {
     $user = auth()->user();
-    if ($user->role->role_id != 3) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
+
+    // if ($user->role->role_id != 3) {
+    //     return response()->json(['message' => 'Unauthorized'], 403);
+    // }
+
     $request->validate([
         'price' => 'required|numeric|min:0',
         'description_proposal' => 'nullable|string',
