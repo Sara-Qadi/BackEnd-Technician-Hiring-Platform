@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('role_id');
             $table->rememberToken();
             $table->boolean('is_approved')->default(false);
-
+            $table->string('profile_image', 255)->nullable(); 
 
             $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
 

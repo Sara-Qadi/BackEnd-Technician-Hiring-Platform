@@ -11,14 +11,21 @@ use App\Models\User;
 
 class SubmissionController extends Controller
 {
+    public function __construct()
+{
+    $this->middleware('auth:sanctum')->only(['accept', 'reject']);
+}
 
     public function accept($id){
+
         $submission = Proposal::find($id);
         if (!$submission) {
             return response('proposal not found', 404);
         }
-
-        $submission->status_agreed = 1;
+        if ($submission->JobPost->user_id !== auth()->id()) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $submission->status_agreed = 'accepted'; 
         $submission->save();
 
         if ($submission->JobPost) {
@@ -48,7 +55,7 @@ class SubmissionController extends Controller
         }
 
         // تعيين status_agreed إلى 0
-        $submission->status_agreed = 0;
+        $submission->status_agreed = 'rejected'; 
         $submission->save();
         $job = $submission->jobPost;
         if ($job) {

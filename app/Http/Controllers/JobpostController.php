@@ -6,12 +6,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class JobpostController extends Controller
 {
     protected $jobpost;
     public function __construct()
     {
+        $this->middleware('auth:sanctum')->only([
+        'deletePost', 'updatePost', 'addPost'
+    ]);
         $this->jobpost = new JobPost();
     }
    public function allPosts(){
@@ -32,15 +36,17 @@ class JobpostController extends Controller
         return response()->json($jobposts);
     }
 
-    public function filterJobs($title){
-    return JobPost::where('title', 'like', "%$title%")->get();
-    }
+   public function filterJobs($title){
+     return JobPost::where('title', 'like', "%$title%")->where('jobposts.status', 'pending')->get();
+}
+
 
     public function count(){
         return JobPost::where('jobpost_id','>',0)->count();
     }
 
     public function showUserposts($id){
+        //$id = auth()->id();
         $user = User::where('user_id', $id)->first();
     if (!$user) {
         return response()->json(['message' => 'User not found'], 404);
@@ -78,30 +84,58 @@ class JobpostController extends Controller
     return response()->json($jobpost);
 }
 
-    /*public function deletePost(Request $request){
-        $job = JobPost::find($request->id);
-
-        if (!$job) {
-            return response('Job not found', 404);
-        }
-
-        $job->delete();
-        return response('Job deleted successfully');
-    }*/
-
     public function deletePost($id){
-        $job = JobPost::find($id);
 
-        if (!$job) {
-            return response()->json('Job not found', 404);
-        }
+     $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Not Authenticated'], 401);
+    }
+
+    $job = JobPost::findOrFail($id);
+    if ($job->user_id !== $user->user_id) {
+        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    }
+
+    if ($user->role->role_id != 2) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
         $result=$job->delete();
         return response()->json('Job deleted successfully');
     }
-    public function addPost(Request $request){
 
-        return $this->jobpost->create($request->all());
-       /* $job = new JobPost();
+    public function addPost(Request $request){
+         $validated = $request->validate([
+        'title' => 'required|string',
+        'category' => 'required|string',
+        'minimum_budget' => 'required|numeric|min:0',
+        'maximum_budget' => 'required|numeric|gte:minimum_budget',
+        'deadline' => 'required|date|after:today',
+        //'attachments' => 'nullable|array',
+        //'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'location' => 'required|string',
+        'description' => 'required|string|min:50',
+        'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+    ]);
+
+    $validated['user_id'] = auth()->id(); // 🔒 اربط البوست بالمستخدم المسجل
+    $validated['status'] = 'pending';
+    $filenames = [];
+    if ($request->hasFile('attachments')) {
+        foreach ($request->file('attachments') as $file) {
+            $originalName = $file->getClientOriginalName();
+            $path = $file->storeAs('attachments',$originalName, 'public'); // يخزن في storage/app/public/attachments
+            $filenames[] = $originalName;
+        }
+        $validated['attachments'] = json_encode($filenames); // نحفظها كنص JSON
+    }
+ $job = JobPost::create($validated);
+
+    return response()->json([
+        'message' => 'Job created successfully',
+        'data' => $job
+    ], 201);
+           /* $job = new JobPost();
         $job->title = $request->title;
         $job->description = $request->description;
         $job->user_id = $request->user_id;
@@ -138,105 +172,48 @@ class JobpostController extends Controller
         'data' => $job
     ], 201);*/
     }
-    /*public function updatePost(Request $request, $id){
-        //$job = JobPost::find($request->id);
-         $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'category' => 'required|string',
-        'minimum_budget' => 'required|numeric',
-        'maximum_budget' => 'required|numeric',
-        'deadline' => 'required|date',
-        'location' => 'required|string',
-        'description' => 'required|string',
-        // إذا في مرفقات، أضف القاعدة هنا
-    ]);
-
-    $job = JobPost::findOrFail($id);
-    $job->update($validated);
-
-    return response()->json(['message' => 'Job updated successfully']);
-        /*$job->title = $request->title;
-        $job->description = $request->description;
-        $job->user_id = $request->user_id;
-        $job->save();
-        return response('Job updated successfully';)*/
-        /* $data = $request->all();
-        if ($request->hasFile('attachments')) {
-            $path = $request->file('attachments')->store('attachments', 'public');
-            $data['attachments'] = $path;
-        }
-        $job->update($data);
-        return response()->json([
-            'message' => 'Job updated successfully',
-            'jobpost' => $job
-        ]);*
-    }*/
-   /* public function updatePost(Request $request, $id)
-{
-
-    $jobpost=$this->jobpost->find($id);
-    $jobpost->update($request->all());
-    return response()->json([
-        'message' => 'Job updated successfully',
-        'data' => $jobpost
-    ]);
-    /*$validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'category' => 'required|string',
-        'minimum_budget' => 'required|numeric',
-        'maximum_budget' => 'required|numeric',
-        'deadline' => 'required|date',
-        'location' => 'required|string',
-        'description' => 'required|string',
-        'attachments' => 'nullable|array',
-        'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
-    ]);
-
-    $job = JobPost::findOrFail($id);
-
-    // إذا فيه مرفقات، خزنهم
-    if ($request->hasFile('attachments')) {
-        $paths = [];
-        foreach ($request->file('attachments') as $file) {
-            $paths[] = $file->store('attachments', 'public');
-        }
-        $validated['attachments'] = json_encode($paths);
-    }
-
-    $job->update($validated);
-
-    return response()->json(['message' => 'Job updated successfully']);*
-}*/
-
-
-
-
+   
+   
 public function updatePost(Request $request, $id)
 {
-    /*$validated = $request->validate([
+    // التحقق من المصادقة أولاً
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Not Authenticated'], 401);
+    }
+
+    $job = JobPost::findOrFail($id);
+    if ($job->user_id !== $user->user_id) {
+        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    }
+
+    if ($user->role->role_id != 2) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    // جلب الوظيفة والتحقق من ملكيتها
+
+    // التحقق من البيانات (اختياري لكن مستحسن)
+    $validated = $request->validate([
         'title' => 'required|string|max:255',
         'category' => 'required|string|max:255',
-        'minimum_budget' => 'required|numeric|min:1',
-        'maximum_budget' => 'required|numeric|min:1|gte:minimum_budget',
-        'deadline' => 'required|date|after_or_equal:today',
-        'location' => 'required|string|max:255',
-        'description' => 'required|string|min:50',
+        'minimum_budget' => 'required|numeric|min:0',
+        'maximum_budget' => 'required|numeric|gte:minimum_budget',
+        'deadline' => 'required|date|after:today',
+        'location' => 'nullable|string|max:255',
+        'description' => 'nullable|string',
     ]);
-
-
-    $jobpost = Jobpost::findOrFail($id);
-
-    $jobpost->update($request->only(
-        'title', 'category', 'minimum_budget', 'maximum_budget', 'deadline', 'location', 'description'
-    ));
-
-
+    //dd($validated);
+    // التحديث
+    $job->update($validated);
+    $job->refresh();
     return response()->json([
         'message' => 'Job updated successfully',
-        'data' => $jobpost
-    ]);*/
-     return $this->jobpost->update($request->all());
+        'data' => $job
+    ]);
 }
+
 
 
     public function downloadfiles(Request $request)
@@ -264,6 +241,34 @@ public function updatePost(Request $request, $id)
 
     return Storage::disk('public')->download($filePath, $attachmentFile);
 }
+ public function updatestatus($id){
+     /*$user = auth()->user();
+  if (!$user) {
+        return response()->json(['message' => 'Not Authenticated'], 401);
+    }*/
+
+    $job = JobPost::findOrFail($id);
+    /*if ($job->user_id !== $user->user_id) {
+        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    }
+
+    if ($user->role->role_id != 2) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }*/
+    $job['status'] = 'completed';
+    $job->save();
+    return response()->json(['message' => 'Job status updated successfully', 'job' => $job]);
+ }
+ public function downloadAttachmentByName($filename)
+{
+    $filePath = 'attachments/' . $filename;
+
+    if (Storage::disk('public')->exists($filePath)) {
+        return Storage::disk('public')->download($filePath);
+    } else {
+        return response()->json(['message' => 'File not found'], 404);
+    }
+}
 
 //sara
 public function getTotalJobPosts()
@@ -272,5 +277,20 @@ public function getTotalJobPosts()
     return response()->json(['total_posts' => $count]);
 }
 
+public function getMonthlyJobPostCounts()
+{
+    $counts = DB::table('jobposts')
+        ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->orderBy(DB::raw('MONTH(created_at)'))
+        ->get();
+
+    return response()->json($counts);
+}
+
+
 
 }
+
+
+
