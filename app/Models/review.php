@@ -12,7 +12,6 @@ class Review extends Model
     protected $fillable = [
         'review_by',
         'review_to',
-        'profile_id',
         'jobpost_id',
         'rating',
         'review_comment',
@@ -30,11 +29,6 @@ public function reviewee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
 }
 
    
-    public function profile(): BelongsTo
-    {
-        return $this->belongsTo(Profile::class, 'profile_id', 'user_id');
-    }
-
   
     public function jobpost(): BelongsTo
     {

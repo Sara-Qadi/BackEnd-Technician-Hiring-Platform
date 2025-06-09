@@ -21,14 +21,10 @@ class ReviewSeeder extends Seeder
                 $reviewer = $users->random();
                 $reviewee = $users->where('user_id', '!=', $reviewer->user_id)->random();
 
-                if (
-                    Profile::where('user_id', $reviewee->user_id)->exists() &&
-                    !in_array($reviewee->user_id, $usedProfiles)
-                ) {
+           {
                     Review::create([
                         'review_by' => $reviewer->user_id,
                         'review_to' => $reviewee->user_id,
-                        'profile_id' => $reviewee->user_id,
                         'jobpost_id' => $job->jobpost_id,
                         'rating' => rand(1, 5),
                         'review_comment' => 'Excellent work by user ' . $reviewee->user_id,
