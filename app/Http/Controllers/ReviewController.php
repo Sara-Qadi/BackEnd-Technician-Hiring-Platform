@@ -23,33 +23,26 @@ public function store(Request $request)
 
     $user = Auth::user();
 
-    $jobPost = Jobpost::where('user_id', $user->user_id)
-                ->where('status', 'completed')
-                ->first();
+    
+    $jobPost = JobPost::where('status', 'completed')
+        ->where(function ($query) use ($user, $request) {
+            $query->where('user_id', $user->user_id)
+                  ->orWhere('user_id', $request->review_to);
+        })
+        ->whereHas('proposals', function ($query) use ($user, $request) {
+            $query->where('status_agreed', 'accepted')
+                  ->where(function ($q) use ($user, $request) {
+                      $q->where('tech_id', $user->user_id)
+                        ->orWhere('tech_id', $request->review_to);
+                  });
+        })
+        ->latest() 
+        ->first();
 
     if (!$jobPost) {
         return response()->json([
-            'message' => 'No completed jobpost found for this user.'
+            'message' => 'No completed jobpost found between both users.'
         ], 404);
-    }
-
-    $acceptedProposal = Proposal::where('jobpost_id', $jobPost->jobpost_id)
-        ->where('status_agreed', 'accepted')
-        ->first();
-
-    if (!$acceptedProposal) {
-        return response()->json([
-            'message' => 'No accepted proposal found for this job.'
-        ], 404);
-    }
-
-    if (
-        $user->user_id !== $jobPost->user_id &&
-        $user->user_id !== $acceptedProposal->tech_id
-    ) {
-        return response()->json([
-            'message' => 'You are not authorized to review this job.'
-        ], 403);
     }
 
     $existingReview = Review::where('jobpost_id', $jobPost->jobpost_id)

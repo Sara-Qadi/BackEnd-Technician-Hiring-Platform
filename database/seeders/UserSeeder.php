@@ -14,9 +14,9 @@ class UserSeeder extends Seeder
     public function run(): void
     {
 
-       // User::factory()->count(10)->create();
+        User::factory()->count(10)->create();
 
-        $users = [
+         $users = [
             // Admins
             [
                 'user_name' => 'Admin One',
@@ -76,7 +76,14 @@ class UserSeeder extends Seeder
                 'role_id' => 3,
                 //'is_approved' => true,
             ],
+
+  
+   
+
+
         ];
+     
+    
 
         foreach ($users as $user) {
             User::create($user);
