@@ -65,4 +65,19 @@ class MessagesController extends Controller
         return response()->json($users);
     }
 
+    public function getSelectedUserToMessage($sender_id , $receiver_id)
+    {
+        $message = Message::create([
+            'sender_id' => $sender_id,
+            'receiver_id' => $receiver_id,
+            'message_content' => 'hi, there',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $message
+        ]);
+    }
+
+
 }

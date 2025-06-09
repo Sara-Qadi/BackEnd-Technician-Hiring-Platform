@@ -15,7 +15,7 @@ use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MessagesController;
-
+use App\Http\Controllers\ForgotPasswordController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -32,6 +32,9 @@ Route::middleware(['auth:sanctum','admin'])->group(function () {
     Route::get('admin/pendingTechnician', [AdminController::class, 'pendingRequestTechnician']);
     Route::put('admin/acceptTechnician/{user_id}', [AdminController::class, 'acceptTechnician']);
     Route::delete('admin/rejectTechnician/{user_id}', [AdminController::class, 'rejectTechnician']);
+        Route::get('admin/notifications', [AdminController::class, 'getNotifications']);
+            Route::patch('admin/notifications/{id}/read', [AdminController::class, 'markNotificationAsRead']);
+
 });
 
 
@@ -92,7 +95,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/proposal/addproposal/{jobpost_id}', [ProposalController::class, 'makeNewProposals']);
     Route::put('/proposal/updateproposal/{id}', [ProposalController::class, 'updateProposal']);
     Route::delete('/proposal/deleteproposal/{id}', [ProposalController::class, 'deleteProposal']);
-    
+
 });
 Route::get('/proposal/showproposal/{id}',[ProposalController::class, 'show']);
 Route::get('/proposal/allproposals', [ProposalController::class, 'returnAllProposals']);
@@ -103,9 +106,10 @@ Route::get('/proposals/jobpostwithprop/{id}', [ProposalController::class, 'getJo
 Route::get('/proposals/countjobpostwithprop/{id}', [ProposalController::class, 'countJobPostswithProposals']);
 Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
 Route::get('/proposals/getTechNameById/{id}', [ProposalController::class, 'getTechNameById']);
-
+Route::get('/proposals/getAllProposalsForTech/{tech_id}', [ProposalController::class, 'getAllProposalsForTech']);
 Route::get('/proposals/jobpost/countforjo/{id}', [ProposalController::class, 'countAllProposalsforJO']);
 Route::get('/proposals/jobpost/proposalsforjo/{id}', [ProposalController::class, 'returnProposalsforJO']);
+Route::get('/proposals/checkIfUserValidateToSubmitBids/{user_id}/{jobpost_id}', [ProposalController::class, 'checkIfUserValidateToSubmitBids']);
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);
@@ -150,7 +154,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile', [ProfileController::class, 'store']);
         Route::post('/profile/update', [ProfileController::class, 'update']);
 });
-Route::put('/updatejo/{id}', [UserController::class, 'updateUser']);
+Route::put('/updatejo/{id}', [ProfileController::class, 'updateUser']);
 Route::get('/profile/{id}', [ProfileController::class, 'showById']);
 
 
@@ -179,6 +183,7 @@ Route::middleware('auth:sanctum')->get('/debug/token', function (Request $reques
     ]);
 });
 
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 
 Route::post('/submission/accept', [SubmissionController::class, 'accept']);
@@ -191,8 +196,24 @@ Route::get('/dashboard/total-posts', [JobpostController::class, 'getTotalJobPost
 Route::get('/dashboard/total-submissions', [SubmissionController::class, 'getTotalSubmissions']);
 Route::get('/dashboard/jobposts-per-month', [JobpostController::class, 'getMonthlyJobPostCounts']);
 Route::get('/users/pending-approvals', [UserController::class, 'countPendingApprovals']);
+Route::get('/dashboard/job-status-counts', [JobpostController::class, 'getJobStatusCounts']);
+
+
+
+Route::get('/completed-jobs', [JobpostController::class, 'completedJobsForTechnician']);
+
 
 //massages
 Route::post('/messages/store', [MessagesController::class, 'storeMessage']);
 Route::get('/messages/get-conversation/{sender_id}/{receiver_id}', [MessagesController::class, 'getConversation']);
 Route::get('/messages/get-user-conversations/{user_id}', [MessagesController::class, 'getUserConversations']);
+
+Route::post('/messages/get-Selected-User-To-Message/{sender_id}/{receiver_id}', [MessagesController::class, 'getSelectedUserToMessage']);
+
+
+
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
+
+
