@@ -146,7 +146,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile', [ProfileController::class, 'store']);
         Route::post('/profile/update', [ProfileController::class, 'update']);
 });
-Route::put('/updatejo/{id}', [UserController::class, 'updateUser']);
+Route::put('/updatejo/{id}', [ProfileController::class, 'updateUser']);
 Route::get('/profile/{id}', [ProfileController::class, 'showById']);
 
 

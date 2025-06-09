@@ -118,4 +118,40 @@ class ProfileController extends Controller
 
         return response()->json(['message' => 'Profile created', 'profile' => $profile]);
     }
+    public function updateUser(Request $request, $id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not found.'
+        ], 404);
+    }
+
+    // تحديث جدول users بدون description
+    $user->update([
+        'user_name' => $request->user_name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'country' => $request->country,
+        // لا تحدث description هنا إذا لم تكن موجودة في جدول users
+    ]);
+
+    // تحديث جدول profiles
+    $profile = $user->profile; // يفترض أنك عاملة علاقة profile() في موديل User
+
+    if ($profile) {
+        $profile->update([
+            'description' => $request->description,
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'User and profile updated successfully.',
+        'user' => $user,
+        'profile' => $profile
+    ]);
+}
+
+
 }
