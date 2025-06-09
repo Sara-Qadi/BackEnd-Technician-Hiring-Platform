@@ -45,6 +45,8 @@ Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
 Route::prefix('notifications')->group(function () {
     // GET /api/notifications/{userId}
+    Route::get('{userId}/unread', [NotificationsController::class, 'getUnread']);
+
     Route::get('{userId}', [NotificationsController::class, 'index']);
 
     // POST /api/notifications
@@ -55,6 +57,7 @@ Route::prefix('notifications')->group(function () {
 
     // DELETE /api/notifications/{notificationId}
     Route::delete('{notificationId}', [NotificationsController::class, 'destroy']);
+
 });
 
 // Profile routes
