@@ -14,7 +14,7 @@ class ProposalSeeder extends Seeder
 
         for ($i = 0; $i < 10; $i++) {
             Proposal::create([
-                'price' => $faker->randomFloat(2, 50, 1000),
+                'price' => $faker->numberBetween(0, 100),
                 'status_agreed' => $faker->randomElement(['pending','accepted','rejected']), // 0 for not agreed, 1 for agreed
                 'description_proposal' => $faker->sentence(10),
                 'tech_id' => $faker->numberBetween(1, 10),     
