@@ -86,12 +86,13 @@ public function countJobPostswithProposals($id)
         return Proposal::where('jobpost_id', $id)->where('jobpost_id','>',0)->count();
     }
    public function makeNewProposals(Request $request, $jobpost_id)
-{
+    {
     $user = auth()->user();
 
-    // if ($user->role->role_id != 3) {
-    //     return response()->json(['message' => 'Unauthorized'], 403);
-    // }
+    if ($user->role->role_id != 3) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
 
     $request->validate([
         'price' => 'required|numeric|min:0',
@@ -175,4 +176,17 @@ public function countJobPostswithProposals($id)
         $proposal->delete();
         return response()->json(['message' => 'Proposal deleted successfully']);
     }
+
+    public function checkIfUserValidateToSubmitBids($user_id , $jobpost_id){
+        $exists = Proposal::where('tech_id', $user_id)->where('jobpost_id', $jobpost_id)->exists();
+
+        return response()->json(['canSubmit' => !$exists]);
+    }
+
+    public function getAllProposalsForTech($tech_id){
+        $proposals = Proposal::where('tech_id', $tech_id)->get();
+        return response()->json($proposals);
+    }
+
 }
+
