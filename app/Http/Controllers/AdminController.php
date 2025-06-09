@@ -188,4 +188,30 @@ class AdminController extends Controller
             'report' => $report,
         ], 201);
     }
+
+    //sara
+    public function getNotifications(Request $request)
+{
+    $user = $request->user();
+
+    $notifications = Notification::where('user_id', $user->user_id)
+                                 ->orderBy('created_at', 'desc')
+                                 ->get();
+
+    return response()->json($notifications);
+}
+
+public function markNotificationAsRead($id)
+{
+    $notification = Notification::find($id);
+    if (!$notification) {
+        return response()->json(['message' => 'Notification not found'], 404);
+    }
+
+    $notification->read_status = 'read';
+    $notification->save();
+
+    return response()->json(['message' => 'Notification marked as read']);
+}
+
 }

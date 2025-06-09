@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Notification;
 
 class AuthController extends Controller
 {
-    
+
 
     public function login(Request $request)
     {
@@ -56,8 +57,8 @@ class AuthController extends Controller
         } else {
             $isApproved = true;
         }
-        
-         
+
+
          $user = User::create([
              'user_name' => $request->user_name,
              'email' => $request->email,
@@ -67,7 +68,20 @@ class AuthController extends Controller
              'password' => Hash::make($request->password),
              'is_approved' => $isApproved,
          ]);
-     
+
+           if ($user->role_id == 3) {
+        $admins = User::where('role_id', 1)->get();
+
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->user_id,
+                'type' => 'technician_request',
+                'message' => "Technician '{$user->user_name}' has requested to join and needs your approval.",
+                'read_status' => 'unread',
+            ]);
+        }
+    }
+
          // نحدد نوع الصلاحية حسب الدور
         $ability = match ($user->role_id) {
             1 => 'admin',
@@ -77,10 +91,18 @@ class AuthController extends Controller
         };
 
         $token = $user->createToken('login_token', [$ability])->plainTextToken;
-     
+
          return response()->json([
              'token' => $token,
              'user' => $user
          ], 201);
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully']);
+    }
+
 }
