@@ -106,9 +106,10 @@ Route::get('/proposals/jobpostwithprop/{id}', [ProposalController::class, 'getJo
 Route::get('/proposals/countjobpostwithprop/{id}', [ProposalController::class, 'countJobPostswithProposals']);
 Route::get('/proposals/jobpost/count/{id}', [ProposalController::class, 'countProposalsByJobPost']);
 Route::get('/proposals/getTechNameById/{id}', [ProposalController::class, 'getTechNameById']);
-
+Route::get('/proposals/getAllProposalsForTech/{tech_id}', [ProposalController::class, 'getAllProposalsForTech']);
 Route::get('/proposals/jobpost/countforjo/{id}', [ProposalController::class, 'countAllProposalsforJO']);
 Route::get('/proposals/jobpost/proposalsforjo/{id}', [ProposalController::class, 'returnProposalsforJO']);
+Route::get('/proposals/checkIfUserValidateToSubmitBids/{user_id}/{jobpost_id}', [ProposalController::class, 'checkIfUserValidateToSubmitBids']);
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);
