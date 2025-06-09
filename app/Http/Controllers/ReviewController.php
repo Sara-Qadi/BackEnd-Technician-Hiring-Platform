@@ -16,25 +16,25 @@ class ReviewController extends Controller
 public function store(Request $request) 
 {
     $request->validate([
-        'jobpost_id' => 'required|exists:jobposts,jobpost_id',
         'rating' => 'required|numeric|min:1|max:5',
-        'comment' => 'nullable|string',
+        'review_comment' => 'nullable|string',
+        'review_to' => 'required|exists:users,user_id', 
     ]);
 
     $user = Auth::user();
 
+    $jobPost = Jobpost::where('user_id', $user->user_id)
+                ->where('status', 'completed')
+                ->first();
 
-    $jobPost = Jobpost::findOrFail($request->jobpost_id);
-
-    if ($jobPost->status !== 'completed') {
+    if (!$jobPost) {
         return response()->json([
-            'message' => 'You can only review a job that is marked as done.'
-        ], 403);
+            'message' => 'No completed jobpost found for this user.'
+        ], 404);
     }
 
-    // جلب العرض المقبول
     $acceptedProposal = Proposal::where('jobpost_id', $jobPost->jobpost_id)
-        ->where('status_agreed', true)
+        ->where('status_agreed', 'accepted')
         ->first();
 
     if (!$acceptedProposal) {
@@ -62,16 +62,12 @@ public function store(Request $request)
         ], 409);
     }
 
-    $reviewTo = ($user->user_id === $jobPost->user_id)
-        ? $acceptedProposal->tech_id
-        : $jobPost->user_id;
-
     $review = Review::create([
-        'jobpost_id' => $jobPost->jobpost_id,
-        'review_to'  => $reviewTo,
-        'review_by'  => $user->user_id,
-        'rating'     => $request->rating,
-        'comment'    => $request->comment,
+        'jobpost_id'     => $jobPost->jobpost_id,
+        'review_to'      => $request->review_to,  
+        'review_by'      => $user->user_id,
+        'rating'         => $request->rating,
+        'review_comment' => $request->review_comment,
     ]);
 
     return response()->json([
@@ -96,14 +92,25 @@ public function store(Request $request)
 }
 
 
-    public function getUserAverageRating($user_id)
-    {
-        $average = Review::where('review_to', $user_id)
-            ->whereHas('jobPost', fn($q) => $q->where('status', 'completed'))
-            ->avg('rating');
+   public function getUserAverageRating($user_id)
+{
+    $reviews = Review::with('jobPost')
+        ->where('review_to', $user_id)
+        ->get();
 
-        return response()->json(['average_rating' => round($average, 2)]);
-    }
+    $user = User::find($user_id);
+
+    $average = Review::where('review_to', $user_id)
+        ->whereHas('jobPost', fn($q) => $q->where('status', 'completed'))
+        ->avg('rating');
+
+    return response()->json([
+        'userName' => $user->name,
+        'reviews' => $reviews,
+        'average_rating' => round($average ?? 0, 2)
+    ]);
+}
+
  
  
 }
