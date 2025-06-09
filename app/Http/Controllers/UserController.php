@@ -136,7 +136,40 @@ public function countPendingApprovals()
     $pendingCount = User::where('is_approved', 0)->count();
     return response()->json(['pending_approvals' => $pendingCount]);
 }
+public function updateUser(Request $request, $id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not found.'
+        ], 404);
+    }
+
+    // تحديث بيانات المستخدم
+    $user->update([
+        'user_name' => $request->user_name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'country' => $request->country
+    ]);
+
+    return response()->json([
+        'message' => 'User updated successfully.',
+        'user' => $user
+    ]);
+}
+public function getroleid($id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    return response($user->role_id);
 
 
 }
 
+}

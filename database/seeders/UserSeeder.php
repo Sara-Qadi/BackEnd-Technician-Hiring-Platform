@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('admin123'),
                 'country' => 'Palestine',
                 'role_id' => 1,
-                'is_approved' => true,
+                //'is_approved' => true,
             ],
             [
                 'user_name' => 'Admin Two',
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('admin123'),
                 'country' => 'Jordan',
                 'role_id' => 1,
-                'is_approved' => true,
+                //'is_approved' => true,
             ],
 
             // Job Owners
@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('owner123'),
                 'country' => 'Palestine',
                 'role_id' => 2,
-                'is_approved' => true,
+                //'is_approved' => true,
             ],
             [
                 'user_name' => 'Job Owner Two',
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('owner123'),
                 'country' => 'Lebanon',
                 'role_id' => 2,
-                'is_approved' => true,
+                //'is_approved' => true,
             ],
 
             // Technicians
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('tech123'),
                 'country' => 'Palestine',
                 'role_id' => 3,
-                'is_approved' => false,
+                //'is_approved' => false,
             ],
             [
                 'user_name' => 'Technician Two',
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('tech123'),
                 'country' => 'Egypt',
                 'role_id' => 3,
-                'is_approved' => true,
+                //'is_approved' => true,
             ],
         ];
 

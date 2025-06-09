@@ -24,7 +24,7 @@ class JobPost extends Model
         'minimum_budget',
         'deadline',
         'status',
-        //'attachments',
+        'attachments',
         'location',
         'description',
         'user_id',
@@ -46,6 +46,10 @@ class JobPost extends Model
     }
 
     // omar
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class, 'jobpost_id');
+    }
     public function submission()
     {
         return $this->hasOne(Submission::class, 'submission_id');

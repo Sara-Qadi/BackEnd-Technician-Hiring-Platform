@@ -11,8 +11,8 @@ return new class extends Migration
     {
         Schema::create('proposals', function (Blueprint $table) {
             $table->id(); // primary key, auto-increment
-            $table->decimal('price', 10, 2)->default(0);    
-            $table->boolean('status_agreed')->default(false);
+            $table->integer('price')->default(0);
+            $table->string('status_agreed')->default('pending');
             $table->text('description_proposal')->nullable();
             $table->unsignedInteger('tech_id');
             $table->unsignedInteger('jobpost_id');
