@@ -220,8 +220,8 @@ class JobpostController extends Controller
         'data' => $job
     ], 201);*/
     }
-   
-   
+
+
 public function updatePost(Request $request, $id)
 {
     // التحقق من المصادقة أولاً
@@ -336,6 +336,31 @@ public function getMonthlyJobPostCounts()
     return response()->json($counts);
 }
 
+
+//sara
+public function completedJobsForTechnician()
+{
+    $jobs = DB::table('jobposts')
+        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+        ->where('jobposts.status', 'completed')
+        ->select('jobposts.*', 'users.user_id', 'users.user_name')
+        ->orderBy('jobposts.deadline', 'desc')
+        ->get();
+
+    return response()->json($jobs);
+}
+
+
+public function getJobStatusCounts()
+{
+    $inProgress = JobPost::where('status', 'in progress')->count();
+    $completed = JobPost::where('status', 'completed')->count();
+
+    return response()->json([
+        'in_progress' => $inProgress,
+        'completed' => $completed
+    ]);
+}
 
 
 }
