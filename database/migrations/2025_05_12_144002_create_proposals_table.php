@@ -17,9 +17,9 @@ return new class extends Migration
             $table->unsignedInteger('tech_id');
             $table->unsignedInteger('jobpost_id');
             //$table->foreign('tech_id')->references('id')->on('jobposts')->onDelete('cascade');
-            //$table->foreign('jobpost_id')->references('id')->on('users')->onDelete('cascade'); 
+            //$table->foreign('jobpost_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('tech_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('jobpost_id')->references('jobpost_id')->on('jobposts')->onDelete('cascade');           
+            $table->foreign('jobpost_id')->references('jobpost_id')->on('jobposts')->onDelete('cascade');
             $table->timestamps();
         });
     }
