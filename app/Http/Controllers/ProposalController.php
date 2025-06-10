@@ -188,5 +188,29 @@ public function countJobPostswithProposals($id)
         return response()->json($proposals);
     }
 
+    public function getJobownerDataByProposalId($proposal_id)
+{
+    $proposal = Proposal::find($proposal_id);
+
+    if (!$proposal) {
+        return response()->json(['message' => 'Proposal not found'], 404);
+    }
+
+    $jobPost = JobPost::find($proposal->jobpost_id);
+
+    if (!$jobPost) {
+        return response()->json(['message' => 'Job post not found'], 404);
+    }
+
+    $jobOwner = User::find($jobPost->user_id);
+
+    if (!$jobOwner) {
+        return response()->json(['message' => 'Job owner not found'], 404);
+    }
+
+    return response()->json($jobOwner);
+}
+
+
 }
 

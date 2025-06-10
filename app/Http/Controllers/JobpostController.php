@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\JobPost;
 use App\Models\User;
+use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -363,7 +364,31 @@ public function getJobStatusCounts()
 }
 
 
+    public function getJobownerIdBytheJobpostId($jobpost_id)
+    {
+    $jobOwner = DB::table('jobposts')
+        ->where('jobpost_id', $jobpost_id)
+        ->select('user_id')
+        ->first();
+
+    if (!$jobOwner) {
+        return response()->json(['message' => 'Job owner not found'], 404);
+    }
+
+    return response()->json(['jobowner_id' => $jobOwner->user_id]);
+    }  
+
+
+
+    public function getTechIdBytheJobpostId($jobpost_id)
+    {
+        $proposal = Proposal::where('jobpost_id', $jobpost_id)->get();
+
+        if (!$proposal) {
+            return response()->json(['message' => 'Proposal not found'], 404);
+        }
+
+        return response()->json(['proposals' => $proposal]);
+    }
 }
-
-
 
