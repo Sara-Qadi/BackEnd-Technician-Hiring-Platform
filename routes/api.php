@@ -66,15 +66,15 @@ Route::middleware('auth:sanctum')->post('/user/name', [UserController::class, 'u
 
 
 
-// Jobpost routes
+// Jobpost routes + Submission routes
 Route::middleware('auth:sanctum')->group(function (){
     Route::delete('/jobpost/deletepost/{id}', [JobpostController::class, 'deletePost']);
     Route::post('/jobpost/addpost', [JobpostController::class, 'addPost']);
     Route::put('/jobpost/updatepost/{id}', [JobpostController::class, 'updatePost']);
+    Route::put('/jobpost/updatestatus/{id}', [JobpostController::class, 'updatestatus']);
     Route::put('/submission/accept/{id}', [SubmissionController::class, 'accept']);
     Route::put('/submission/reject/{id}', [SubmissionController::class, 'reject']);
 });
-Route::put('/jobpost/updatestatus/{id}', [JobpostController::class, 'updatestatus']);
 Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
 Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
 Route::get('/jobpost/showpost/{id}', [JobpostController::class, 'showpost']);
@@ -92,9 +92,6 @@ Route::get('/attachments/download/{filename}', [JobPostController::class, 'downl
 
 // search for jobpost omar
 Route::get('/jobpost/filterJobs/{title}', [JobpostController::class, 'filterJobs']);
-
-
-// Submission routes
 
 // Proposal routes
 Route::middleware('auth:sanctum')->group(function () {
