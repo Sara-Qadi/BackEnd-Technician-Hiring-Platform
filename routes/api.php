@@ -83,6 +83,9 @@ Route::get('/jobpost/allPostsforTech',[JobPostController::class ,'allPostsforTec
 Route::get('/jobpost/pending/{id}', [JobPostController::class, 'allPendingPosts']);
 Route::get('/jobpost/onprogress/{id}', [JobPostController::class, 'allonProgressPosts']);
 Route::get('/jobpost/completed/{id}', [JobPostController::class, 'allCompletedPosts']);
+Route::get('/jobpost/getJobownerIdBytheJobpostId/{jobpost_id}', [JobPostController::class, 'getJobownerIdBytheJobpostId']);
+Route::get('/jobpost/getTechIdBytheJobpostId/{jobpost_id}', [JobPostController::class, 'getTechIdBytheJobpostId']);
+
 
 
 Route::get('/attachments/download/{filename}', [JobPostController::class, 'downloadAttachmentByName']);
@@ -113,6 +116,7 @@ Route::get('/proposals/getAllProposalsForTech/{tech_id}', [ProposalController::c
 Route::get('/proposals/jobpost/countforjo/{id}', [ProposalController::class, 'countAllProposalsforJO']);
 Route::get('/proposals/jobpost/proposalsforjo/{id}', [ProposalController::class, 'returnProposalsforJO']);
 Route::get('/proposals/checkIfUserValidateToSubmitBids/{user_id}/{jobpost_id}', [ProposalController::class, 'checkIfUserValidateToSubmitBids']);
+Route::get('/proposals/jobpost/getJobownerDataByProposalId/{proposal_id}', [ProposalController::class, 'getJobownerDataByProposalId']);
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);
