@@ -17,13 +17,18 @@ class SubmissionController extends Controller
 }
 
     public function accept($id){
+        $user = auth()->user();
+
 
         $submission = Proposal::find($id);
         if (!$submission) {
             return response('proposal not found', 404);
         }
         if ($submission->JobPost->user_id !== auth()->id()) {
-        return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        if ($user->role->role_id != 2) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
         $submission->status_agreed = 'accepted'; 
         $submission->save();
@@ -48,13 +53,19 @@ class SubmissionController extends Controller
     }
 
     public function reject($id){
+        $user = auth()->user();
         $submission = Proposal::find($id);
 
         if (!$submission) {
             return response('proposal not found', 404);
         }
+        if ($submission->JobPost->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        if ($user->role->role_id != 2) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-        // تعيين status_agreed إلى 0
         $submission->status_agreed = 'rejected'; 
         $submission->save();
         $job = $submission->jobPost;

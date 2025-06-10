@@ -144,6 +144,10 @@ class ProfileController extends Controller
         $profile->update([
             'description' => $request->description,
         ]);
+    }else {
+    $user->profile()->create([
+        'description' => $request->description,
+    ]);
     }
 
     return response()->json([

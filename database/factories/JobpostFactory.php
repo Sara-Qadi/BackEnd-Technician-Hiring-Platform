@@ -40,8 +40,9 @@ class JobPostFactory extends Factory
                 'Mechanic',
                 'Welder',
                 'Tiler',
-                'AC  Technician',
-                'Security Camera Installer'
+                'AC Technician',
+                'Security Camera Installer',
+                'Other'
             ]),
             'maximum_budget' => 100,
             'minimum_budget' => 10,
