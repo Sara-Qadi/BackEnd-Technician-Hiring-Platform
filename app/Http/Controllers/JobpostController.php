@@ -247,21 +247,20 @@ public function updatePost(Request $request, $id)
     return Storage::disk('public')->download($filePath, $attachmentFile);
 }
  public function updatestatus($id){
-   $user = auth()->user()->load('role');
-
-    Log::info('updatestatus called', ['user' => $user, 'jobpost_id' => $id]);
-    if (!$user) {
+     /*$user = auth()->user();
+  if (!$user) {
         return response()->json(['message' => 'Not Authenticated'], 401);
-    }
+    }*/
+
     $job = JobPost::findOrFail($id);
-    if ($job->user_id !== $user->user_id) {
+    /*if ($job->user_id !== $user->user_id) {
         return response()->json(['message' => 'You do not have permission to update this job.'], 403);
     }
 
     if ($user->role->role_id != 2) {
         return response()->json(['message' => 'Unauthorized'], 403);
-    }
-    $job->status = 'completed';
+    }*/
+    $job['status'] = 'completed';
     $job->save();
     return response()->json(['message' => 'Job status updated successfully', 'job' => $job]);
  }
