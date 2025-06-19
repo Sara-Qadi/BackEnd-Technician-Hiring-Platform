@@ -128,17 +128,14 @@ class ProfileController extends Controller
         ], 404);
     }
 
-    // تحديث جدول users بدون description
     $user->update([
         'user_name' => $request->user_name,
         'email' => $request->email,
         'phone' => $request->phone,
         'country' => $request->country,
-        // لا تحدث description هنا إذا لم تكن موجودة في جدول users
     ]);
 
-    // تحديث جدول profiles
-    $profile = $user->profile; // يفترض أنك عاملة علاقة profile() في موديل User
+    $profile = $user->profile; 
 
     if ($profile) {
         $profile->update([
