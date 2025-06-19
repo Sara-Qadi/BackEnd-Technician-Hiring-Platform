@@ -217,7 +217,7 @@ public function updatePost(Request $request, $id)
 
 
 
-    public function downloadfiles(Request $request)
+    /*public function downloadfiles(Request $request)
 {
     $request->validate([
         'jobpost_id' => 'required|exists:jobposts,jobpost_id',
@@ -235,7 +235,7 @@ public function updatePost(Request $request, $id)
     }
 
     return Storage::disk('public')->download($filePath, $attachmentFile);
-}
+}*/
  public function updatestatus($id){
      $user = auth()->user();
   if (!$user) {
