@@ -162,7 +162,7 @@ class JobpostController extends Controller
             'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
-        $validated['user_id'] = auth()->id(); // 🔒 اربط البوست بالمستخدم المسجل
+        $validated['user_id'] = auth()->id();
         $validated['status'] = 'pending';
        if ($request->hasFile('attachments')) {
             $file = $request->file('attachments');

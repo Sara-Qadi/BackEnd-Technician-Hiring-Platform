@@ -73,7 +73,6 @@ class SubmissionController extends Controller
             $job->status = 'pending';
             $job->save();
         }*/
-        // حذف البروبوزل المرتبط
         //$submission->delete();
 
         // Notify the technician that their offer was rejected

@@ -25,7 +25,7 @@ class ProposalController extends Controller
         //return response()->json($proposals);
         $proposals = DB::table('proposals')
         ->join('users', 'proposals.tech_id', '=', 'users.user_id')
-        ->leftJoin('profiles', 'users.user_id', '=', 'profiles.user_id') // ← انضمام لجدول البروفايل
+        ->leftJoin('profiles', 'users.user_id', '=', 'profiles.user_id') 
         ->select(
             'proposals.*',
             'users.user_name as tech_name',
