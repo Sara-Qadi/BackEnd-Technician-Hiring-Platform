@@ -217,25 +217,6 @@ public function updatePost(Request $request, $id)
 
 
 
-    /*public function downloadfiles(Request $request)
-{
-    $request->validate([
-        'jobpost_id' => 'required|exists:jobposts,jobpost_id',
-    ]);
-
-    $jobPost = JobPost::where('jobpost_id', $request->jobpost_id)->first();
-
-    
-    $attachmentFile = json_decode($jobPost->attachments, true)[0] ?? $jobPost->attachments;
-
-    $filePath = 'jobposts/' . $attachmentFile;
-
-    if (!Storage::disk('public')->exists($filePath)) {
-        return response()->json(['message' => 'File does not exist on server'], 404);
-    }
-
-    return Storage::disk('public')->download($filePath, $attachmentFile);
-}*/
  public function updatestatus($id){
      $user = auth()->user();
   if (!$user) {
