@@ -157,23 +157,18 @@ class JobpostController extends Controller
             'minimum_budget' => 'required|numeric|min:0',
             'maximum_budget' => 'required|numeric|gte:minimum_budget',
             'deadline' => 'required|date|after:today',
-        //'attachments' => 'nullable|array',
-        //'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
             'location' => 'required|string',
             'description' => 'required|string|min:50',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         $validated['user_id'] = auth()->id(); // 🔒 اربط البوست بالمستخدم المسجل
         $validated['status'] = 'pending';
-        $filenames = [];
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $originalName = $file->getClientOriginalName();
-                $path = $file->storeAs('attachments',$originalName, 'public'); // يخزن في storage/app/public/attachments
-                $filenames[] = $originalName;
-            }
-            $validated['attachments'] = json_encode($filenames); // نحفظها كنص JSON
+       if ($request->hasFile('attachments')) {
+            $file = $request->file('attachments');
+            $originalName = $file->getClientOriginalName();
+            $path = $file->storeAs('attachments', $originalName, 'public'); // يخزن في storage/app/public/attachments
+            $validated['attachments'] = $originalName; 
         }
         $job = JobPost::create($validated);
 
@@ -208,6 +203,7 @@ public function updatePost(Request $request, $id)
         'deadline' => 'required|date|after:today',
         'location' => 'nullable|string|max:255',
         'description' => 'nullable|string',
+        'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
     //dd($validated);
     // التحديث
@@ -229,13 +225,7 @@ public function updatePost(Request $request, $id)
 
     $jobPost = JobPost::where('jobpost_id', $request->jobpost_id)->first();
 
-    /******* */
-    // تأكدي من وجود الملف
-    /*if (!$jobPost || !$jobPost->attachments) {
-        return response()->json(['message' => 'Attachment not found'], 404);
-    }*/
-
-    // في حال كان الحقل يحتوي أكثر من ملف، يمكن استخراج أول ملف مثلاً:
+    
     $attachmentFile = json_decode($jobPost->attachments, true)[0] ?? $jobPost->attachments;
 
     $filePath = 'jobposts/' . $attachmentFile;
@@ -247,20 +237,20 @@ public function updatePost(Request $request, $id)
     return Storage::disk('public')->download($filePath, $attachmentFile);
 }
  public function updatestatus($id){
-     /*$user = auth()->user();
+     $user = auth()->user();
   if (!$user) {
         return response()->json(['message' => 'Not Authenticated'], 401);
-    }*/
+    }
 
     $job = JobPost::findOrFail($id);
-    /*if ($job->user_id !== $user->user_id) {
+    if ($job->user_id !== $user->user_id) {
         return response()->json(['message' => 'You do not have permission to update this job.'], 403);
     }
 
     if ($user->role->role_id != 2) {
         return response()->json(['message' => 'Unauthorized'], 403);
-    }*/
-    $job['status'] = 'completed';
+    }
+    $job->status = 'completed';
     $job->save();
     return response()->json(['message' => 'Job status updated successfully', 'job' => $job]);
  }

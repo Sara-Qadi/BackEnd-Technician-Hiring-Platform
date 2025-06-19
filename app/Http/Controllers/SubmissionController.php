@@ -69,10 +69,10 @@ class SubmissionController extends Controller
         $submission->status_agreed = 'rejected'; 
         $submission->save();
         $job = $submission->jobPost;
-        if ($job) {
+        /*if ($job) {
             $job->status = 'pending';
             $job->save();
-        }
+        }*/
         // حذف البروبوزل المرتبط
         //$submission->delete();
 

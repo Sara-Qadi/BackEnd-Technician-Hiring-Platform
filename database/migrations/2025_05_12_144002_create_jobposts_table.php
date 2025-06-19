@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('minimum_budget')->default(0);
             $table->date('deadline');
             $table->string('status', 20)->default('pending');
-            $table->json('attachments')->nullable();
+            $table->string('attachments')->nullable();
             $table->string('location');
             //$table->text('description')->nullable();
             $table->text('description');
@@ -29,9 +29,6 @@ return new class extends Migration
             //$table->unsignedInteger('user_id');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
            
-            //$table->unsignedInteger('user_id');
-            //$table->date('created-at');
-           // $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 
