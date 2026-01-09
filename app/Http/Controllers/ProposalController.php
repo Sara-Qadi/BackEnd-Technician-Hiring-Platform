@@ -25,7 +25,7 @@ class ProposalController extends Controller
         //return response()->json($proposals);
         $proposals = DB::table('proposals')
         ->join('users', 'proposals.tech_id', '=', 'users.user_id')
-        ->leftJoin('profiles', 'users.user_id', '=', 'profiles.user_id') // ← انضمام لجدول البروفايل
+        ->leftJoin('profiles', 'users.user_id', '=', 'profiles.user_id') 
         ->select(
             'proposals.*',
             'users.user_name as tech_name',
@@ -207,6 +207,30 @@ public function countJobPostswithProposals($id)
         $proposals = Proposal::where('tech_id', $tech_id)->get();
         return response()->json($proposals);
     }
+
+    public function getJobownerDataByProposalId($proposal_id)
+{
+    $proposal = Proposal::find($proposal_id);
+
+    if (!$proposal) {
+        return response()->json(['message' => 'Proposal not found'], 404);
+    }
+
+    $jobPost = JobPost::find($proposal->jobpost_id);
+
+    if (!$jobPost) {
+        return response()->json(['message' => 'Job post not found'], 404);
+    }
+
+    $jobOwner = User::find($jobPost->user_id);
+
+    if (!$jobOwner) {
+        return response()->json(['message' => 'Job owner not found'], 404);
+    }
+
+    return response()->json($jobOwner);
+}
+
 
 }
 
