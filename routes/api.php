@@ -200,6 +200,7 @@ Route::get('/dashboard/job-status-counts', [JobpostController::class, 'getJobSta
 
 
 Route::get('/completed-jobs', [JobpostController::class, 'completedJobsForTechnician']);
+Route::get('/technician/{techId}/completed-jobs', [JobpostController::class, 'completedJobsForTechnicianById']);
 
 
 //massages
