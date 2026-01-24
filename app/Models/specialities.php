@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @OA\Schema(hidden=true)
+ */
 class Speciality extends Model
 {
     protected $table = 'specialities';
