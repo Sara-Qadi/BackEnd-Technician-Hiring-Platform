@@ -50,10 +50,7 @@ class JobPost extends Model
     {
         return $this->hasMany(Proposal::class, 'jobpost_id');
     }
-    public function submission()
-    {
-        return $this->hasOne(Submission::class, 'submission_id');
-    }
+    
 }
 
 
