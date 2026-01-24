@@ -16,6 +16,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\ForgotPasswordController;
+
+//http://localhost:8000/docs/api
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -36,7 +39,6 @@ Route::middleware(['auth:sanctum','admin'])->group(function () {
             Route::patch('admin/notifications/{id}/read', [AdminController::class, 'markNotificationAsRead']);
 
 });
-
 
 
 Route::post('/admin/report', [AdminController::class, 'reportUser']);
@@ -63,8 +65,6 @@ Route::prefix('notifications')->group(function () {
 // Profile routes
 
 Route::middleware('auth:sanctum')->post('/user/name', [UserController::class, 'updateName']);
-
-
 
 // Jobpost routes + Submission routes
 Route::middleware('auth:sanctum')->group(function (){
