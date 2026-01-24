@@ -7,8 +7,6 @@ use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class JobpostController extends Controller
 {
@@ -16,31 +14,39 @@ class JobpostController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum')->only([
-        'deletePost', 'updatePost', 'addPost','updatestatus'
-    ]);
+            'deletePost', 'updatePost', 'addPost'
+        ]);
+
         $this->jobpost = new JobPost();
     }
-   public function allPosts(){
+
+    public function allPosts()
+    {
         $jobposts = DB::table('jobposts')
             ->join('users', 'jobposts.user_id', '=', 'users.user_id')
             ->select('jobposts.*', 'users.user_id', 'users.user_name')
-            ->orderBy('deadline', 'asc')->get();
+            ->orderBy('deadline', 'asc')
+            ->get();
+
         return response()->json($jobposts);
     }
 
-    public function allPostsforTech(){
+    public function allPostsforTech()
+    {
         $jobposts = DB::table('jobposts')
             ->join('users', 'jobposts.user_id', '=', 'users.user_id')
             ->select('jobposts.*', 'users.user_id', 'users.user_name')
             ->where('jobposts.status', 'pending')
-            ->orderBy('deadline', 'asc')->get();
+            ->orderBy('deadline', 'asc')
+            ->get();
+
         return response()->json($jobposts);
     }
-    public function allPendingPosts($id){
+
+    public function allPendingPosts($id)
+    {
         $user = User::where('user_id', $id)->first();
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
 
         $jobposts = DB::table('jobposts')
             ->join('users', 'jobposts.user_id', '=', 'users.user_id')
@@ -52,11 +58,11 @@ class JobpostController extends Controller
 
         return response()->json($jobposts);
     }
-    public function allonProgressPosts($id){
+
+    public function allonProgressPosts($id)
+    {
         $user = User::where('user_id', $id)->first();
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
 
         $jobposts = DB::table('jobposts')
             ->join('users', 'jobposts.user_id', '=', 'users.user_id')
@@ -66,13 +72,13 @@ class JobpostController extends Controller
             ->orderBy('jobposts.deadline', 'asc')
             ->get();
 
-    return response()->json($jobposts);
+        return response()->json($jobposts);
     }
-    public function allCompletedPosts($id){
+
+    public function allCompletedPosts($id)
+    {
         $user = User::where('user_id', $id)->first();
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
 
         $jobposts = DB::table('jobposts')
             ->join('users', 'jobposts.user_id', '=', 'users.user_id')
@@ -85,19 +91,22 @@ class JobpostController extends Controller
         return response()->json($jobposts);
     }
 
-   public function filterJobs($title){
-     return JobPost::where('title', 'like', "%$title%")->where('jobposts.status', 'pending')->get();
-}
-    public function count(){
-        return JobPost::where('jobpost_id','>',0)->count();
+    public function filterJobs($title)
+    {
+        return JobPost::where('title', 'like', "%$title%")
+            ->where('jobposts.status', 'pending')
+            ->get();
     }
 
-    public function showUserposts($id){
-        //$id = auth()->id();
+    public function count()
+    {
+        return JobPost::where('jobpost_id', '>', 0)->count();
+    }
+
+    public function showUserposts($id)
+    {
         $user = User::where('user_id', $id)->first();
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
 
         $jobposts = DB::table('jobposts')
             ->join('users', 'jobposts.user_id', '=', 'users.user_id')
@@ -124,33 +133,27 @@ class JobpostController extends Controller
         return response()->json($jobpost);
     }
 
-    public function deletePost($id){
-
+    public function deletePost($id)
+    {
         $user = auth()->user();
-        if (!$user) {
-            return response()->json(['message' => 'Not Authenticated'], 401);
-        }
+        if (!$user) return response()->json(['message' => 'Not Authenticated'], 401);
 
         $job = JobPost::findOrFail($id);
+
         if ($job->user_id !== $user->user_id) {
             return response()->json(['message' => 'You do not have permission to update this job.'], 403);
         }
 
-        if ($user->role->role_id == 3) {
-         return response()->json(['message' => 'Unauthorized'], 403);
-        }
-        $result=$job->delete();
-        return response()->json('Job deleted successfully');
-    }
-
-    public function addPost(Request $request){
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json(['message' => 'Not Authenticated'], 401);
-        }
         if ($user->role->role_id != 2) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+
+        $job->delete();
+        return response()->json('Job deleted successfully');
+    }
+
+    public function addPost(Request $request)
+    {
         $validated = $request->validate([
             'title' => 'required|string',
             'category' => 'required|string',
@@ -159,153 +162,175 @@ class JobpostController extends Controller
             'deadline' => 'required|date|after:today',
             'location' => 'required|string',
             'description' => 'required|string|min:50',
-            'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         $validated['user_id'] = auth()->id();
         $validated['status'] = 'pending';
-       if ($request->hasFile('attachments')) {
-            $file = $request->file('attachments');
-            $originalName = $file->getClientOriginalName();
-            $path = $file->storeAs('attachments', $originalName, 'public'); // يخزن في storage/app/public/attachments
-            $validated['attachments'] = $originalName; 
+
+        $filenames = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $originalName = $file->getClientOriginalName();
+                $file->storeAs('attachments', $originalName, 'public');
+                $filenames[] = $originalName;
+            }
+            $validated['attachments'] = json_encode($filenames);
         }
+
         $job = JobPost::create($validated);
 
         return response()->json([
             'message' => 'Job created successfully',
             'data' => $job
-        ], 201);    
+        ], 201);
     }
 
+    public function updatePost(Request $request, $id)
+    {
+        $user = auth()->user();
+        if (!$user) return response()->json(['message' => 'Not Authenticated'], 401);
 
-public function updatePost(Request $request, $id)
-{
-    $user = auth()->user();
-    if (!$user) {
-        return response()->json(['message' => 'Not Authenticated'], 401);
+        $job = JobPost::findOrFail($id);
+
+        if ($job->user_id !== $user->user_id) {
+            return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+        }
+
+        if ($user->role->role_id != 2) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'minimum_budget' => 'required|numeric|min:0',
+            'maximum_budget' => 'required|numeric|gte:minimum_budget',
+            'deadline' => 'required|date|after:today',
+            'location' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $job->update($validated);
+        $job->refresh();
+
+        return response()->json([
+            'message' => 'Job updated successfully',
+            'data' => $job
+        ]);
     }
 
-    $job = JobPost::findOrFail($id);
-    if ($job->user_id !== $user->user_id) {
-        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    public function downloadfiles(Request $request)
+    {
+        $request->validate([
+            'jobpost_id' => 'required|exists:jobposts,jobpost_id',
+        ]);
+
+        $jobPost = JobPost::where('jobpost_id', $request->jobpost_id)->first();
+
+        $attachmentFile = json_decode($jobPost->attachments, true)[0] ?? $jobPost->attachments;
+        $filePath = 'jobposts/' . $attachmentFile;
+
+        if (!Storage::disk('public')->exists($filePath)) {
+            return response()->json(['message' => 'File does not exist on server'], 404);
+        }
+
+        return Storage::disk('public')->download($filePath, $attachmentFile);
     }
 
-    if ($user->role->role_id == 3) {
-        return response()->json(['message' => 'Unauthorized'], 403);
+    public function updatestatus($id)
+    {
+        $job = JobPost::findOrFail($id);
+        $job['status'] = 'completed';
+        $job->save();
+
+        return response()->json(['message' => 'Job status updated successfully', 'job' => $job]);
     }
 
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'category' => 'required|string|max:255',
-        'minimum_budget' => 'required|numeric|min:0',
-        'maximum_budget' => 'required|numeric|gte:minimum_budget',
-        'deadline' => 'required|date|after:today',
-        'location' => 'nullable|string|max:255',
-        'description' => 'nullable|string',
-        'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
-    ]);
-    //dd($validated);
-    // التحديث
-    $job->update($validated);
-    $job->refresh();
-    return response()->json([
-        'message' => 'Job updated successfully',
-        'data' => $job
-    ]);
-}
+    public function downloadAttachmentByName($filename)
+    {
+        $filePath = 'attachments/' . $filename;
 
-
-
- public function updatestatus($id){
-     $user = auth()->user();
-  if (!$user) {
-        return response()->json(['message' => 'Not Authenticated'], 401);
+        if (Storage::disk('public')->exists($filePath)) {
+            return Storage::disk('public')->download($filePath);
+        } else {
+            return response()->json(['message' => 'File not found'], 404);
+        }
     }
 
-    $job = JobPost::findOrFail($id);
-    if ($job->user_id !== $user->user_id) {
-        return response()->json(['message' => 'You do not have permission to update this job.'], 403);
+    public function getTotalJobPosts()
+    {
+        $count = JobPost::count();
+        return response()->json(['total_posts' => $count]);
     }
 
-    if ($user->role->role_id != 2) {
-        return response()->json(['message' => 'Unauthorized'], 403);
+    public function getMonthlyJobPostCounts()
+    {
+        $counts = DB::table('jobposts')
+            ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->orderBy(DB::raw('MONTH(created_at)'))
+            ->get();
+
+        return response()->json($counts);
     }
-    $job->status = 'completed';
-    $job->save();
-    return response()->json(['message' => 'Job status updated successfully', 'job' => $job]);
- }
- public function downloadAttachmentByName($filename)
-{
-    $filePath = 'attachments/' . $filename;
 
-    if (Storage::disk('public')->exists($filePath)) {
-        return Storage::disk('public')->download($filePath);
-    } else {
-        return response()->json(['message' => 'File not found'], 404);
+    public function completedJobsForTechnician()
+    {
+        $techId = auth()->id();
+
+        $jobs = DB::table('jobposts')
+            ->join('proposals', 'proposals.jobpost_id', '=', 'jobposts.jobpost_id')
+            ->join('users', 'jobposts.user_id', '=', 'users.user_id')
+            ->where('jobposts.status', 'completed')
+            ->where('proposals.tech_id', $techId)
+            ->select('jobposts.*', 'users.user_id', 'users.user_name')
+            ->distinct()
+            ->orderBy('jobposts.deadline', 'desc')
+            ->get();
+
+        return response()->json($jobs);
     }
-}
 
-//sara
-public function getTotalJobPosts()
-{
-    $count = JobPost::count();
-    return response()->json(['total_posts' => $count]);
-}
+    public function completedJobsForTechnicianById($techId)
+    {
+        $jobs = DB::table('jobposts')
+            ->join('proposals', 'proposals.jobpost_id', '=', 'jobposts.jobpost_id')
+            ->join('users', 'jobposts.user_id', '=', 'users.user_id') // job owner
+            ->where('jobposts.status', 'completed')
+            ->where('proposals.tech_id', $techId)
+            ->select('jobposts.*', 'users.user_id', 'users.user_name')
+            ->distinct()
+            ->orderBy('jobposts.deadline', 'desc')
+            ->get();
 
-public function getMonthlyJobPostCounts()
-{
-    $counts = DB::table('jobposts')
-        ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
-        ->groupBy(DB::raw('MONTH(created_at)'))
-        ->orderBy(DB::raw('MONTH(created_at)'))
-        ->get();
+        return response()->json($jobs);
+    }
 
-    return response()->json($counts);
-}
+    public function getJobStatusCounts()
+    {
+        $inProgress = JobPost::where('status', 'in progress')->count();
+        $completed = JobPost::where('status', 'completed')->count();
 
-
-//sara
-public function completedJobsForTechnician()
-{
-    $jobs = DB::table('jobposts')
-        ->join('users', 'jobposts.user_id', '=', 'users.user_id')
-        ->where('jobposts.status', 'completed')
-        ->select('jobposts.*', 'users.user_id', 'users.user_name')
-        ->orderBy('jobposts.deadline', 'desc')
-        ->get();
-
-    return response()->json($jobs);
-}
-
-
-public function getJobStatusCounts()
-{
-    $inProgress = JobPost::where('status', 'in progress')->count();
-    $completed = JobPost::where('status', 'completed')->count();
-
-    return response()->json([
-        'in_progress' => $inProgress,
-        'completed' => $completed
-    ]);
-}
-
+        return response()->json([
+            'in_progress' => $inProgress,
+            'completed' => $completed
+        ]);
+    }
 
     public function getJobownerIdBytheJobpostId($jobpost_id)
     {
-    $jobOwner = DB::table('jobposts')
-        ->where('jobpost_id', $jobpost_id)
-        ->select('user_id')
-        ->first();
+        $jobOwner = DB::table('jobposts')
+            ->where('jobpost_id', $jobpost_id)
+            ->select('user_id')
+            ->first();
 
-    if (!$jobOwner) {
-        return response()->json(['message' => 'Job owner not found'], 404);
+        if (!$jobOwner) {
+            return response()->json(['message' => 'Job owner not found'], 404);
+        }
+
+        return response()->json(['jobowner_id' => $jobOwner->user_id]);
     }
-
-    return response()->json(['jobowner_id' => $jobOwner->user_id]);
-    }  
-
-
 
     public function getTechIdBytheJobpostId($jobpost_id)
     {
@@ -318,4 +343,3 @@ public function getJobStatusCounts()
         return response()->json(['proposals' => $proposal]);
     }
 }
-

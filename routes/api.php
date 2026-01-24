@@ -44,18 +44,10 @@ Route::post('/admin/report', [AdminController::class, 'reportUser']);
 //notification
 
 Route::prefix('notifications')->group(function () {
-    // GET /api/notifications/{userId}
     Route::get('{userId}/unread', [NotificationsController::class, 'getUnread']);
-
     Route::get('{userId}', [NotificationsController::class, 'index']);
-
-    // POST /api/notifications
     Route::post('', [NotificationsController::class, 'store']);
-
-    // PUT /api/notifications/mark-as-read/{notificationId}
     Route::put('mark-as-read/{notificationId}', [NotificationsController::class, 'markAsRead']);
-
-    // DELETE /api/notifications/{notificationId}
     Route::delete('{notificationId}', [NotificationsController::class, 'destroy']);
 
 });
@@ -205,6 +197,7 @@ Route::get('/dashboard/job-status-counts', [JobpostController::class, 'getJobSta
 
 
 Route::get('/completed-jobs', [JobpostController::class, 'completedJobsForTechnician']);
+Route::get('/technician/{techId}/completed-jobs', [JobpostController::class, 'completedJobsForTechnicianById']);
 
 
 //massages
