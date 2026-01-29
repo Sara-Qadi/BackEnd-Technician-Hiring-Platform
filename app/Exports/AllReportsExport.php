@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Illuminate\Support\Facades\Auth;
 
 class AllReportsExport implements WithMultipleSheets
 {
@@ -13,47 +14,92 @@ class AllReportsExport implements WithMultipleSheets
         $this->userId = $userId;
     }
 
-    public function sheets(): array
+    private function getReportData($reportMethod)
     {
         $reportsController = app('App\Http\Controllers\ReportsController');
-        $userId = $this->userId;
 
-        return [
-            new DynamicReportExport(
-                headers: ['Month', 'Completed Jobs', 'Cancelled Jobs', 'In Progress Jobs', 'Completion Rate'],
-                data: json_decode(json_encode($reportsController->jobCompletionReport($userId)->getData()->data), true),
-                title: 'Job Completion'
-            ),
-            new DynamicReportExport(
-                headers: ['User ID', 'User Name', 'Completed Jobs', 'Avg Job Price', 'Total Earnings', 'Job Completion Rate'],
-                data: json_decode(json_encode($reportsController->earningsReport($userId)->getData()->data), true),
+        $response = $reportsController->$reportMethod($this->userId);
+
+        // إذا كان JsonResponse
+        $original = $response->getData(true);
+
+        $data = $original['data'] ?? [];
+
+        // إذا كانت Collection
+        if ($data instanceof \Illuminate\Support\Collection) {
+            return $data->map(fn($row) => (array) $row)->values()->toArray();
+        }
+
+        // إذا كانت LengthAwarePaginator أو Paginator
+        if ($data instanceof \Illuminate\Pagination\LengthAwarePaginator ||
+            $data instanceof \Illuminate\Pagination\Paginator) {
+            return $data->items();
+        }
+
+        // إذا كانت already array
+        if (is_array($data)) {
+            return $data;
+        }
+
+        // أي نوع آخر
+        return [];
+    }
+
+    public function sheets(): array
+    {
+        $roleId = Auth::user()->role_id;
+        $sheets = [];
+
+        // === Reports مشتركة ===
+        $sheets[] = new DynamicReportExport(
+            headers: ['Month', 'Completed Jobs', 'Cancelled Jobs', 'In Progress Jobs', 'Completion Rate'],
+            data: $this->getReportData('jobCompletionReport'),
+            title: 'Job Completion'
+        );
+
+        $sheets[] = new DynamicReportExport(
+            headers: ['User Name', 'Satisfaction Rate'],
+            data: $this->getReportData('topRatedArtisansReport'),
+            title: 'Top Rated'
+        );
+
+        // === Earnings فقط للـ role 1 و 2 ===
+        if (in_array($roleId, [1, 2])) {
+            $sheets[] = new DynamicReportExport(
+                headers: ['User Name', 'Completed Jobs', 'Avg Job Price', 'Total Earnings'],
+                data: $this->getReportData('earningsReport'),
                 title: 'Earnings'
-            ),
-            new DynamicReportExport(
+            );
+        }
+
+        // === باقي التقارير فقط Super Admin (role 1) ===
+        if ($roleId === 1) {
+
+            $sheets[] = new DynamicReportExport(
                 headers: ['Month', 'New Users', 'Jobs Posted', 'Completed Jobs', 'Cancelled Jobs', 'In Progress Jobs', 'Completion Rate'],
-                data: json_decode(json_encode($reportsController->monthlyActivityReport($userId)->getData()->data), true),
+                data: $this->getReportData('monthlyActivityReport'),
                 title: 'Monthly Activity'
-            ),
-            new DynamicReportExport(
-                headers: ['User ID', 'User Name', 'Category', 'Rating', 'Completed Jobs', 'Satisfaction Rate'],
-                data: json_decode(json_encode($reportsController->topRatedArtisansReport($userId)->getData()->data), true),
-                title: 'Top Rated'
-            ),
-            new DynamicReportExport(
+            );
+
+            $sheets[] = new DynamicReportExport(
                 headers: ['User Name', 'Role', 'Avg Rating', 'Flags', 'Last Reported Issue', 'Action Required'],
-                data: json_decode(json_encode($reportsController->lowPerformanceUsersReport($userId)->getData()->data), true),
+                data: $this->getReportData('lowPerformanceUsersReport'),
                 title: 'Low Performance'
-            ),
-            new DynamicReportExport(
+            );
+
+            $sheets[] = new DynamicReportExport(
                 headers: ['City', 'Jobs Posted', 'Top Category', 'Active Artisans', 'Demand/Supply Ratio'],
-                data: json_decode(json_encode($reportsController->locationBasedDemandReport($userId)->getData()->data), true),
+                data: $this->getReportData('locationBasedDemandReport'),
                 title: 'City Demand'
-            ),
-            new DynamicReportExport(
+            );
+
+            $sheets[] = new DynamicReportExport(
                 headers: ['User Name', 'Completed Jobs', 'Total Earnings'],
-                data: json_decode(json_encode($reportsController->topJobFinishersReport($userId)->getData()->data), true),
+                data: $this->getReportData('topJobFinishersReport'),
                 title: 'Top Finishers'
-            ),
-        ];
+            );
+        }
+
+        return $sheets;
     }
 }

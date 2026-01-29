@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\AllReportsExport;
 use Maatwebsite\Excel\Facades\Excel;
- use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
 class ReportsController extends Controller
 {
-     public function jobCompletionReport()
+    public function jobCompletionReport()
     {
         $user = auth()->user();
         $userId = $user->user_id;
@@ -87,41 +87,39 @@ class ReportsController extends Controller
         ]);
     }
 
-public function topRatedArtisansReport()
-{
-    $user = auth()->user();
+    public function topRatedArtisansReport()
+    {
+        $user = auth()->user();
 
-    if (!in_array($user->role_id, [1, 2])) {
-        return response()->json(['error' => 'Unauthorized'], 403);
+        if (!in_array($user->role_id, [1, 2])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $ratingsSubquery = DB::table('reviews')
+            ->select('review_to', DB::raw('AVG(rating) as avg_rating'))
+            ->groupBy('review_to');
+
+        $data = DB::table('users')
+            ->where('users.role_id', 3)
+            ->leftJoinSub($ratingsSubquery, 'ratings', function ($join) {
+                $join->on('users.user_id', '=', 'ratings.review_to');
+            })
+            ->select(
+                'users.user_name',
+                DB::raw('ROUND(COALESCE(ratings.avg_rating, 0), 1) as satisfaction_rate')
+            )
+            ->orderByDesc('satisfaction_rate')
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'headers' => [ 'User Name', 'Satisfaction Rate'],
+            'data' => $data->map(fn($row) => [
+                $row->user_name,
+                $row->satisfaction_rate,
+            ]),
+        ]);
     }
-
-    $ratingsSubquery = DB::table('reviews')
-        ->select('review_to', DB::raw('AVG(rating) as avg_rating'))
-        ->groupBy('review_to');
-
-    $data = DB::table('users')
-        ->where('users.role_id', 3)
-        ->leftJoinSub($ratingsSubquery, 'ratings', function ($join) {
-            $join->on('users.user_id', '=', 'ratings.review_to');
-        })
-        ->select(
-            'users.user_id',
-            'users.user_name',
-            DB::raw('ROUND(COALESCE(ratings.avg_rating, 0), 1) as satisfaction_rate')
-        )
-        ->orderByDesc('satisfaction_rate')
-        ->limit(5)  
-        ->get();
-
-    return response()->json([
-        'headers' => ['User ID', 'User Name', 'Satisfaction Rate'],
-        'data' => $data->map(fn($row) => [
-            $row->user_id,
-            $row->user_name,
-            $row->satisfaction_rate,
-        ]),
-    ]);
-}
 
     public function lowPerformanceUsersReport()
     {
@@ -153,16 +151,16 @@ public function topRatedArtisansReport()
     }
 
     public function monthlyActivityReport()
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    if ($user->role_id != 1) {
-        return response()->json(['error' => 'Unauthorized'], 403);
-    }
+        if ($user->role_id != 1) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
-    try {
-        $data = DB::table('jobposts')
-            ->selectRaw('
+        try {
+            $data = DB::table('jobposts')
+                ->selectRaw('
                 MONTH(created_at) as month_number,
                 CONCAT(MONTHNAME(MIN(created_at)), " ", YEAR(MIN(created_at))) as month,
                 COUNT(DISTINCT user_id) as new_users,
@@ -172,26 +170,26 @@ public function topRatedArtisansReport()
                 SUM(CASE WHEN status = "in progress" THEN 1 ELSE 0 END) as jobs_in_progress,
                 ROUND(SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(*), 0), 1) as completion_rate
             ')
-            ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)'))
-            ->orderBy('month_number')
-            ->get();
+                ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)'))
+                ->orderBy('month_number')
+                ->get();
 
-        return response()->json([
-            'headers' => ['Month', 'New Users', 'Jobs Posted', 'Completed Jobs', 'Cancelled Jobs', 'In Progress Jobs', 'Completion Rate'],
-            'data' => $data->map(fn($row) => [
-                $row->month,
-                $row->new_users,
-                $row->jobs_posted,
-                $row->jobs_completed,
-                $row->jobs_cancelled,
-                $row->jobs_in_progress,
-                $row->completion_rate, // Keep as number for API flexibility
-            ]),
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to generate report'], 500);
+            return response()->json([
+                'headers' => ['Month', 'New Users', 'Jobs Posted', 'Completed Jobs', 'Cancelled Jobs', 'In Progress Jobs', 'Completion Rate'],
+                'data' => $data->map(fn($row) => [
+                    $row->month,
+                    $row->new_users,
+                    $row->jobs_posted,
+                    $row->jobs_completed,
+                    $row->jobs_cancelled,
+                    $row->jobs_in_progress,
+                    $row->completion_rate, // Keep as number for API flexibility
+                ]),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to generate report'], 500);
+        }
     }
-}
 
     public function locationBasedDemandReport()
     {
@@ -218,45 +216,44 @@ public function topRatedArtisansReport()
     }
 
     public function topJobFinishersReport()
-{
-    $user = auth()->user();
-    
-    if ($user->role_id != 1) {
-        return response()->json(['error' => 'Unauthorized'], 403);
-    }
+    {
+        $user = auth()->user();
 
-    $data = DB::table('users')
-        ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
-        ->selectRaw('users.user_id, MAX(users.user_name) as user_name, COUNT(jobposts.jobpost_id) as finished_jobs, SUM(jobposts.maximum_budget) as earnings')
-        ->where('jobposts.status', 'completed')
-        ->groupBy('users.user_id')
-        ->orderByDesc('finished_jobs')
-        ->limit(10)
-        ->get();
+        if ($user->role_id != 1) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
-    return response()->json([
-        'headers' => ['User ID', 'User Name', 'Finished Jobs', 'Earnings'],
-        'data' => $data->map(fn($row) => [
-            $row->user_id,
-            $row->user_name,
-            $row->finished_jobs,
-            $row->earnings,
-        ]),
-    ]);
-}
+        $data = DB::table('users')
+            ->join('jobposts', 'users.user_id', '=', 'jobposts.user_id')
+            ->selectRaw('users.user_id, MAX(users.user_name) as user_name, COUNT(jobposts.jobpost_id) as finished_jobs, SUM(jobposts.maximum_budget) as earnings')
+            ->where('jobposts.status', 'completed')
+            ->groupBy('users.user_id')
+            ->orderByDesc('finished_jobs')
+            ->limit(10)
+            ->get();
 
-public function exportAllReports()
-{
-    try {
-        $userId = Auth::id(); 
-        return Excel::download(new AllReportsExport($userId), 'all_reports.xlsx');
-
-    } catch (\Throwable $e) {
         return response()->json([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ], 500);
+            'headers' => ['User ID', 'User Name', 'Finished Jobs', 'Earnings'],
+            'data' => $data->map(fn($row) => [
+                $row->user_id,
+                $row->user_name,
+                $row->finished_jobs,
+                $row->earnings,
+            ]),
+        ]);
     }
-}
+
+    public function exportAllReports()
+    {
+        try {
+            $userId = Auth::id();
+            return Excel::download(new AllReportsExport($userId), 'all_reports.xlsx');
+        } catch (\Throwable $e) {
+            // هنا نطبع الخطأ الحقيقي
+            dd($e->getMessage(), $e->getTraceAsString());
+        }
+    }
+
+
 
 }

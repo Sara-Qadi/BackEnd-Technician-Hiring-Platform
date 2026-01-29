@@ -37,7 +37,7 @@ class JobPost extends Model
 
     public function reports()
     {
-        return $this->hasMany(Report::class, 'jobpost_id');
+        return $this->morphMany(Report::class, 'reportable');
     }
 
     public function reviews()
