@@ -110,7 +110,7 @@ public function topRatedArtisansReport()
             DB::raw('ROUND(COALESCE(ratings.avg_rating, 0), 1) as satisfaction_rate')
         )
         ->orderByDesc('satisfaction_rate')
-        ->limit(5)  
+        ->limit(5)
         ->get();
 
     return response()->json([
@@ -220,7 +220,7 @@ public function topRatedArtisansReport()
     public function topJobFinishersReport()
 {
     $user = auth()->user();
-    
+
     if ($user->role_id != 1) {
         return response()->json(['error' => 'Unauthorized'], 403);
     }
@@ -248,7 +248,7 @@ public function topRatedArtisansReport()
 public function exportAllReports()
 {
     try {
-        $userId = Auth::id(); 
+        $userId = Auth::id();
         return Excel::download(new AllReportsExport($userId), 'all_reports.xlsx');
 
     } catch (\Throwable $e) {
@@ -258,5 +258,59 @@ public function exportAllReports()
         ], 500);
     }
 }
+public function store(Request $request)
+{
+    $user = $request->user(); // Authenticated user
+
+    $data = $request->validate([
+        'jobpost_id' => 'nullable|integer',
+        'reason' => 'required|string',
+        'report_type' => 'nullable|string',
+        'reported_user_id' => 'nullable|integer',
+    ]);
+
+    $data['user_id'] = $user->user_id; // Set reporter
+
+    $report = \App\Models\Report::create($data);
+
+    return response()->json([
+        'message' => 'Report submitted successfully',
+        'report' => $report
+    ]);
+}
+public function index()
+{
+    $reports = \App\Models\Report::with(['user', 'reportedUser'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $data = $reports->map(function($r) {
+        return [
+            'id' => $r->report_id,
+            'reason' => $r->reason,
+            'reporter' => [
+                'user_name' => $r->user->user_name ?? '-'
+            ],
+            'reported_user' => [
+                'user_name' => $r->reportedUser->user_name ?? '-'
+            ],
+            'created_at' => $r->created_at,
+        ];
+    });
+
+    return response()->json(['data' => $data]);
+}
+public function destroy($id)
+{
+    $report = \App\Models\Report::find($id);
+
+    if (!$report) {
+        return response()->json(['error' => 'Report not found'], 404);
+    }
+
+    $report->delete();
+    return response()->json(['message' => 'Report deleted successfully']);
+}
 
 }
+

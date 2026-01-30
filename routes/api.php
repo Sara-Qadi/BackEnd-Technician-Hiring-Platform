@@ -213,4 +213,7 @@ Route::post('/messages/get-Selected-User-To-Message/{sender_id}/{receiver_id}', 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 
+Route::middleware('auth:sanctum')->post('/reports', [ReportsController::class, 'store']);
 
+Route::middleware(['auth:sanctum', 'admin'])->get('/reports', [ReportsController::class, 'index']);
+Route::middleware('auth:sanctum')->delete('/reports/{id}', [ReportsController::class, 'destroy']);
