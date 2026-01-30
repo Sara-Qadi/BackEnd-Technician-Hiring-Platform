@@ -1,7 +1,6 @@
 <?php
 
 
-use App\Http\Controllers\ReportedUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationsController;
@@ -214,13 +213,4 @@ Route::post('/messages/get-Selected-User-To-Message/{sender_id}/{receiver_id}', 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 
-
-
-Route::middleware('auth:sanctum')->group(function () {
-
-    Route::get('/reports', [ReportedUsers::class, 'index']);
-    Route::get('/reports/{report}', [ReportedUsers::class, 'show']);
-    Route::patch('/reports/{report}', [ReportedUsers::class, 'updateStatus']);
-
-});
 

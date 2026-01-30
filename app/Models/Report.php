@@ -1,35 +1,35 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Report extends Model
 {
+    use HasFactory;
+    protected $table = 'report';
+    protected $primaryKey = 'report_id';
+    public $timestamps = true;
+
     protected $fillable = [
-        'reporter_id',
+        'user_id',
+        'reported_user_id',
+        'jobpost_id',
         'reason',
-        'description',
-        'status',
-        'reviewed_by',
-        'reviewed_at'
+        'report_type',
     ];
 
-    // اللي بلّغ
-    public function reporter()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'reporter_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function reportedUser()
+    {
+        return $this->belongsTo(User::class, 'reported_user_id');
     }
 
-    // اللي راجع البلاغ (أدمن)
-    public function reviewer()
+    public function jobPost()
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
-    }
-
-    // العنصر المبلّغ عنه (User / Job / Review ...)
-    public function reportable()
-    {
-        return $this->morphTo();
+        return $this->belongsTo(JobPost::class, 'jobpost_id');
     }
 }
