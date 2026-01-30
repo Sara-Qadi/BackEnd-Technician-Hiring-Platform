@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Notification;
@@ -104,5 +105,10 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
-
+    public function boot(): void
+    {
+        Gate::define('review-reports', function ($user) {
+            return $user->role === 'admin';
+        });
+    }
 }
