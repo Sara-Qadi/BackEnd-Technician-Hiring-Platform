@@ -51,14 +51,16 @@ use HasApiTokens, HasFactory, Notifiable;
       return $this->hasMany(Notification::class, 'user_id');}
 
 
-
+  public function reports(){
+      return $this->hasMany(Report::class, 'user_id');
+    }
 
     public function profile()
     {
     return $this->hasOne(Profile::class, 'user_id');
     }
 
-    // omar
+    // omar     
     public function sentMessages()
     {
         return $this->hasMany(Message::class, 'sender_id', 'user_id');
@@ -97,10 +99,6 @@ public function sendPasswordResetNotification($token)
         }
     });
 }
-    public function reports()
-    {
-        return $this->morphMany(Report::class, 'reportable');
-    }
 
 }
 
