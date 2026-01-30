@@ -17,6 +17,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\ForgotPasswordController;
+
+//http://localhost:8000/docs/api
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -39,40 +42,32 @@ Route::middleware(['auth:sanctum','admin'])->group(function () {
 });
 
 
-
 Route::post('/admin/report', [AdminController::class, 'reportUser']);
 
 //notification
 
 Route::prefix('notifications')->group(function () {
-    // GET /api/notifications/{userId}
+    Route::get('{userId}/unread', [NotificationsController::class, 'getUnread']);
     Route::get('{userId}', [NotificationsController::class, 'index']);
-
-    // POST /api/notifications
     Route::post('', [NotificationsController::class, 'store']);
-
-    // PUT /api/notifications/mark-as-read/{notificationId}
     Route::put('mark-as-read/{notificationId}', [NotificationsController::class, 'markAsRead']);
-
-    // DELETE /api/notifications/{notificationId}
     Route::delete('{notificationId}', [NotificationsController::class, 'destroy']);
+
 });
 
 // Profile routes
 
 Route::middleware('auth:sanctum')->post('/user/name', [UserController::class, 'updateName']);
 
-
-
-// Jobpost routes
+// Jobpost routes + Submission routes
 Route::middleware('auth:sanctum')->group(function (){
     Route::delete('/jobpost/deletepost/{id}', [JobpostController::class, 'deletePost']);
     Route::post('/jobpost/addpost', [JobpostController::class, 'addPost']);
     Route::put('/jobpost/updatepost/{id}', [JobpostController::class, 'updatePost']);
+    Route::put('/jobpost/updatestatus/{id}', [JobpostController::class, 'updatestatus']);
     Route::put('/submission/accept/{id}', [SubmissionController::class, 'accept']);
     Route::put('/submission/reject/{id}', [SubmissionController::class, 'reject']);
 });
-Route::put('/jobpost/updatestatus/{id}', [JobpostController::class, 'updatestatus']);
 Route::get('/jobpost/allposts', [JobpostController::class, 'allPosts']);
 Route::get('/jobpost/countposts', [JobpostController::class, 'countPosts']);
 Route::get('/jobpost/showpost/{id}', [JobpostController::class, 'showpost']);
@@ -81,15 +76,15 @@ Route::get('/jobpost/allPostsforTech',[JobPostController::class ,'allPostsforTec
 Route::get('/jobpost/pending/{id}', [JobPostController::class, 'allPendingPosts']);
 Route::get('/jobpost/onprogress/{id}', [JobPostController::class, 'allonProgressPosts']);
 Route::get('/jobpost/completed/{id}', [JobPostController::class, 'allCompletedPosts']);
+Route::get('/jobpost/getJobownerIdBytheJobpostId/{jobpost_id}', [JobPostController::class, 'getJobownerIdBytheJobpostId']);
+Route::get('/jobpost/getTechIdBytheJobpostId/{jobpost_id}', [JobPostController::class, 'getTechIdBytheJobpostId']);
+
 
 
 Route::get('/attachments/download/{filename}', [JobPostController::class, 'downloadAttachmentByName']);
 
 // search for jobpost omar
 Route::get('/jobpost/filterJobs/{title}', [JobpostController::class, 'filterJobs']);
-
-
-// Submission routes
 
 // Proposal routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -111,6 +106,7 @@ Route::get('/proposals/getAllProposalsForTech/{tech_id}', [ProposalController::c
 Route::get('/proposals/jobpost/countforjo/{id}', [ProposalController::class, 'countAllProposalsforJO']);
 Route::get('/proposals/jobpost/proposalsforjo/{id}', [ProposalController::class, 'returnProposalsforJO']);
 Route::get('/proposals/checkIfUserValidateToSubmitBids/{user_id}/{jobpost_id}', [ProposalController::class, 'checkIfUserValidateToSubmitBids']);
+Route::get('/proposals/jobpost/getJobownerDataByProposalId/{proposal_id}', [ProposalController::class, 'getJobownerDataByProposalId']);
 
 // User routes
 Route::get('/users', [UserController::class, 'index']);
@@ -202,6 +198,7 @@ Route::get('/dashboard/job-status-counts', [JobpostController::class, 'getJobSta
 
 
 Route::get('/completed-jobs', [JobpostController::class, 'completedJobsForTechnician']);
+Route::get('/technician/{techId}/completed-jobs', [JobpostController::class, 'completedJobsForTechnicianById']);
 
 
 //massages

@@ -54,4 +54,12 @@ class NotificationService
 
         return true;
     }
+
+    public function getUnreadNotificationsByUser($userId)
+{
+    return \App\Models\Notification::where('user_id', $userId)
+        ->where('read_status', 'unread')
+        ->get();
+}
+
 }

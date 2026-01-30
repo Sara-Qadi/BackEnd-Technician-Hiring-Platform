@@ -56,4 +56,12 @@ class NotificationsController extends Controller
 
         return response()->json(['message' => 'Notification deleted']);
     }
+
+    public function getUnread($userId)
+{
+    $unreadNotifications = $this->notificationService->getUnreadNotificationsByUser($userId);
+
+    return response()->json($unreadNotifications);
+}
+
 }
